@@ -1,0 +1,10 @@
+torch>=2.4,<3
+torchvision>=0.19,<1
+transformers>=4.48,<5
+datasets>=3,<5
+accelerate>=1,<2
+seqeval>=1.2,<2
+numpy>=2,<3
+scikit-learn>=1.5,<2
+Pillow>=11,<13
+joblib>=1.4,<2

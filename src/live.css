@@ -1,0 +1,31 @@
+.upload-error {
+  margin-top: 14px;
+  padding: 11px 13px;
+  border: 1px solid #ead6b4;
+  border-radius: 9px;
+  background: #fff4e5;
+  color: #765b29;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.location-summary {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+  padding: 35px;
+  text-align: center;
+  color: var(--green);
+}
+
+.location-summary strong { color: var(--ink); font: 500 24px 'Newsreader'; }
+.location-summary small { max-width: 260px; color: var(--muted); line-height: 1.5; }
+.extract-button { margin-bottom: 10px; }
+.extraction-status { font-size: 13px; color: var(--muted); margin: 8px 0; }
+.extracted-text-panel { padding: 18px; margin: 16px 0; border: 1px solid var(--line); border-radius: 12px; background: #f6faf8; text-align: left; }
+.extracted-text-panel h3 { margin: 0 0 8px; font-size: 17px; }
+.extracted-text-panel p { font-size: 13px; line-height: 1.5; color: var(--muted); }
+.extracted-text-panel .extraction-warning { color: #795821; }
+.extracted-text-panel textarea { display: block; box-sizing: border-box; width: 100%; min-height: 240px; padding: 12px; border: 1px solid var(--line); border-radius: 8px; background: white; color: #243d33; font: 14px/1.6 ui-monospace, monospace; resize: vertical; }
+.extracted-text-panel textarea:focus { outline: 2px solid var(--green); outline-offset: 2px; }

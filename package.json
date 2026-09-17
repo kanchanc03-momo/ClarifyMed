@@ -1,0 +1,35 @@
+{
+  "name": "clarifymed",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:web\" \"npm:dev:api\"",
+    "dev:web": "vite",
+    "dev:api": "node --watch server/index.js",
+    "dev:ml": "python -m uvicorn ml_service.app:app --reload --port 8000",
+    "dev:offline": "concurrently -k \"npm:dev:web\" \"npm:dev:api\" \"npm:dev:ml\"",
+    "start": "node server/index.js",
+    "start:offline": "concurrently -k \"node server/index.js\" \"python -m uvicorn ml_service.app:app --host 127.0.0.1 --port 8000\"",
+    "start:container": "concurrently -k \"node server/index.js\" \"python3 -m uvicorn ml_service.app:app --host 127.0.0.1 --port 8000\"",
+    "test": "npm run test:node && npm run test:python",
+    "test:node": "node --test",
+    "test:python": "python -m unittest discover -s ml_service/tests -v && python -m unittest discover -s ml/tests -v",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.8",
+    "@vitejs/plugin-react": "latest",
+    "concurrently": "^10.0.4",
+    "express": "^5.2.1",
+    "lucide-react": "latest",
+    "multer": "^2.2.0",
+    "openai": "^7.4.0",
+    "pdfjs-dist": "^6.3.289",
+    "react": "latest",
+    "react-dom": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  }
+}

@@ -1,0 +1,27 @@
+services:
+  clarifymed:
+    build: .
+    init: true
+    ports:
+      - "127.0.0.1:7860:7860"
+    environment:
+      NODE_ENV: production
+      ANALYSIS_PROVIDER: ${ANALYSIS_PROVIDER:-local}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GROQ_MODEL: ${GROQ_MODEL:-qwen/qwen3.6-27b}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5-mini}
+      DATA_DIR: /app/data
+      MODEL_CACHE_DIR: /home/node/.cache/clarifymed
+      XRAY_MODEL_PATH: /app/ml/artifacts/fracatlas-mobilenetv2/model.pt
+    volumes:
+      - history:/app/data
+      - ./ml/artifacts:/app/ml/artifacts:ro
+      - model-cache:/home/node/.cache
+      - ocr-cache:/home/node/.EasyOCR
+    restart: unless-stopped
+
+volumes:
+  history:
+  model-cache:
+  ocr-cache:

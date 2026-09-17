@@ -1,0 +1,226 @@
+text,label,split,review_status
+"No acute cardiopulmonary abnormality. Routine outpatient clinical follow-up as scheduled.",routine,train,approved
+"The lungs are clear and the cardiac silhouette is normal. Routine annual screening advised.",routine,train,approved
+"Unremarkable chest radiograph. No acute osseous or soft tissue abnormality. Routine care.",routine,train,approved
+"Bilateral mammogram reveals benign vascular calcifications. Routine 1-year follow-up recommended.",routine,train,approved
+"Normal CT scan of the abdomen and pelvis. Routine follow-up with primary care physician.",routine,train,approved
+"No acute intracranial hemorrhage or mass effect. Routine outpatient follow-up.",routine,train,approved
+"Stable degenerative changes of the cervical spine. Routine conservative management.",routine,train,approved
+"Complete blood count and metabolic panel are within normal limits. Routine annual check.",routine,train,approved
+"No acute fracture or dislocation identified in the right ankle. Routine weight bearing as tolerated.",routine,train,approved
+"Normal sinus rhythm without acute ischemic ST changes. Routine cardiology follow-up.",routine,train,approved
+"Renal ultrasound shows normal parenchymal thickness and no hydronephrosis. Routine follow-up.",routine,train,approved
+"Stable mild osteoarthritis of the bilateral knees. Routine physical therapy and exercise.",routine,train,approved
+"Thyroid gland is normal in size and echotexture without discrete nodules. Routine wellness check.",routine,train,approved
+"No evidence of acute sinusitis or mucosal thickening. Routine outpatient management.",routine,train,approved
+"Visualized lung bases are clear without consolidation. Routine primary care visit.",routine,train,approved
+"Post-operative changes appear stable with no signs of infection. Routine wound check.",routine,train,approved
+"Normal bone mineral density for age. Routine bone density scan in two years.",routine,train,approved
+"Liver function tests demonstrate normal transaminases and bilirubin. Routine wellness check.",routine,train,approved
+"No acute osseous injury demonstrated on left wrist series. Routine splinting as needed.",routine,train,approved
+"Pelvic ultrasound shows normal uterus and bilateral ovaries. Routine gynecologic follow-up.",routine,train,approved
+"Stable appearance of previously noted benign hepatic hemangioma. Routine care.",routine,train,approved
+"No focal consolidation, pneumothorax, or pleural effusion. Routine preventive care.",routine,train,approved
+"Bilateral renal contours are smooth and symmetric. Routine annual laboratory evaluation.",routine,train,approved
+"Normal lumbar spine series showing preserved vertebral body heights. Routine activity.",routine,train,approved
+"Echocardiogram demonstrates normal left ventricular systolic function with ejection fraction 60%. Routine check.",routine,train,approved
+"Clear paranasal sinuses and mastoid air cells. Routine clinical observation.",routine,train,approved
+"No acute traumatic injury to the thoracic cage. Routine follow-up with primary physician.",routine,train,approved
+"Serum electrolytes and creatinine are stable and within normal baseline. Routine visit.",routine,train,approved
+"Unremarkable ultrasound of the right upper quadrant. Routine dietary management.",routine,train,approved
+"Normal brain MRI without acute territorial infarction or demyelination. Routine follow-up.",routine,train,approved
+"No radiographic evidence of acute bowel obstruction or free air. Routine management.",routine,train,approved
+"Symmetric lung aeration without focal alveolar infiltrates. Routine annual follow-up.",routine,train,approved
+"Bone scan shows no scintigraphic evidence of osteoblastic metastatic disease. Routine care.",routine,train,approved
+"Soft tissues of the neck are unremarkable with normal airway caliber. Routine check.",routine,train,approved
+"Bilateral breast ultrasound demonstrates simple benign cysts without suspicious features. Routine follow-up.",routine,train,approved
+"Stable post-surgical spinal fixation hardware without loosening. Routine physical activity.",routine,train,approved
+"No acute bony abnormalities in the cervical spine. Routine ergonomic modifications.",routine,train,approved
+"Stool occult blood test is negative. Routine colorectal cancer screening according to guidelines.",routine,train,approved
+"Cardiac telemetry reveals baseline normal rhythm with rare benign PVCs. Routine monitoring.",routine,train,approved
+"No acute pulmonary embolism or deep vein thrombosis identified on CT angiogram. Routine follow-up.",routine,train,approved
+"Normal renal cortical echogenicity without focal masses or stones. Routine care.",routine,train,approved
+"Chest X-ray shows clear costophrenic angles and normal mediastinum. Routine outpatient care.",routine,train,approved
+"Stable mild chronic microvascular ischemic white matter changes. Routine risk factor management.",routine,train,approved
+"Normal joint spaces in the bilateral hips without avascular necrosis. Routine follow-up.",routine,train,approved
+"Lipid panel demonstrates optimal cholesterol and triglyceride levels. Routine lifestyle maintenance.",routine,train,approved
+"No radiographic signs of active tuberculosis or pneumonia. Routine clinical review.",routine,train,approved
+"Urinalysis is negative for blood, protein, and nitrites. Routine health screening.",routine,train,approved
+"Normal soft tissue contours of the right foot without foreign bodies. Routine care.",routine,train,approved
+"Stable postoperative hip arthroplasty with intact alignment. Routine annual orthopedic review.",routine,train,approved
+"No acute intracranial pathology or midline shift. Routine follow-up as clinically indicated.",routine,train,approved
+"Isolated 3 mm subpleural nodule in right upper lobe. Recommend follow-up chest CT in 12 months.",monitor,train,approved
+"Mild degenerative disc disease at L4-L5 and L5-S1. Suggest clinical monitoring and physical therapy.",monitor,train,approved
+"Thyroid ultrasound demonstrates a 7 mm hypoechoic nodule. Surveillance ultrasound in 6 to 12 months advised.",monitor,train,approved
+"Borderline cardiomegaly noted on chest X-ray. Recommend outpatient echocardiogram and clinical correlation.",monitor,train,approved
+"Small stable non-obstructing 2 mm renal calculus in left kidney. Recommend hydration and surveillance imaging.",monitor,train,approved
+"Hepatic steatosis noted without focal liver lesion. Follow-up liver function tests and monitoring advised.",monitor,train,approved
+"Trace bilateral pleural thickening of uncertain clinical significance. Follow-up imaging in 6 months suggested.",monitor,train,approved
+"Mild mucosal thickening in the maxillary sinuses. Recommend clinical correlation and symptom monitoring.",monitor,train,approved
+"Indeterminate 5 mm pulmonary ground glass opacity. Recommend repeat high-resolution chest CT in 6 months.",monitor,train,approved
+"Mild interval progression of osteopenia in lumbar spine. Recommend follow-up DEXA scan in 1 year.",monitor,train,approved
+"Slightly elevated fasting blood glucose of 115 mg/dL. Recommend repeat HbA1c testing and dietary monitoring.",monitor,train,approved
+"Stable 1.2 cm simple hepatic cyst. Annual ultrasound surveillance recommended if symptomatic.",monitor,train,approved
+"Mild bilateral subcortical white matter ischemic changes. Recommend outpatient monitoring of blood pressure.",monitor,train,approved
+"Equivocal left lower lobe retrocardiac density. Recommend repeat chest radiograph in 6 weeks.",monitor,train,approved
+"Small subcentimeter mesenteric lymph nodes of uncertain significance. Short-interval follow-up CT in 3 to 6 months.",monitor,train,approved
+"Mild gall bladder wall thickening without stones. Clinical monitoring and repeat ultrasound if pain recurs.",monitor,train,approved
+"Borderline enlarged prostate measuring 45 cc. Outpatient urologic evaluation and PSA monitoring recommended.",monitor,train,approved
+"Stable 4 mm thyroid nodule with low suspicion. Routine ultrasound surveillance in one year recommended.",monitor,train,approved
+"Mild bibasilar atelectasis noted. Recommend incentive spirometry and outpatient pulmonary monitoring.",monitor,train,approved
+"Small 8 mm ovarian follicular cyst. Recommend repeat pelvic ultrasound in 6 to 8 weeks after menses.",monitor,train,approved
+"Mild concentric left ventricular hypertrophy. Recommend outpatient cardiology consultation and surveillance.",monitor,train,approved
+"Indeterminate sclerotic lesion in the T12 vertebral body. Recommend comparison with older imaging or follow-up MRI.",monitor,train,approved
+"Mild degenerative joint disease of the right shoulder with acromial spurring. Monitor and physical therapy.",monitor,train,approved
+"Slightly elevated serum ferritin level. Recommend repeat iron studies and outpatient monitoring.",monitor,train,approved
+"Subcentimeter indeterminate pulmonary nodule in left lower lobe. Recommend follow-up low-dose CT in 6 months.",monitor,train,approved
+"Mild gastric antral erythema noted on endoscopy. Recommend acid suppression and symptom monitoring.",monitor,train,approved
+"Mild bilateral carotid intimal-medial thickening without hemodynamically significant stenosis. Annual surveillance.",monitor,train,approved
+"Trace pericardial fluid without hemodynamic compromise. Recommend follow-up echocardiogram in 3 months.",monitor,train,approved
+"Low-grade colonic polyp completely resected during colonoscopy. Surveillance colonoscopy recommended in 5 years.",monitor,train,approved
+"Slight interval increase in size of benign-appearing thyroid nodule. Recommend fine needle aspiration biopsy or monitoring.",monitor,train,approved
+"Mild persistent dry cough with minimal bronchial wall thickening. Follow-up chest X-ray in 8 weeks if unresolved.",monitor,train,approved
+"Borderline low serum vitamin D level. Recommend supplementation and repeat testing in 3 months.",monitor,train,approved
+"Mild degenerative changes in the cervical spine with neural foraminal narrowing. Outpatient physiotherapy monitoring.",monitor,train,approved
+"Small stable pancreatic side-branch IPMN measuring 6 mm. Annual MRI/MRCP surveillance is recommended.",monitor,train,approved
+"Slightly elevated microalbumin/creatinine ratio. Recommend repeat urine testing and diabetic kidney surveillance.",monitor,train,approved
+"Mild patchy ground glass opacity in right middle lobe. Suggest follow-up CT in 3 months to confirm resolution.",monitor,train,approved
+"Stable appearance of non-calcified pulmonary nodule measuring 5 mm. Follow-up CT in 12 months suggested.",monitor,train,approved
+"Mild left ventricular diastolic dysfunction with preserved ejection fraction. Clinical monitoring advised.",monitor,train,approved
+"Borderline splenic enlargement measuring 13 cm. Suggest clinical correlation and repeat ultrasound in 6 months.",monitor,train,approved
+"Mild focal uptake in the lumbar spine likely degenerative. Recommend clinical monitoring and pain management.",monitor,train,approved
+"Small stable uterine leiomyoma measuring 2.1 cm. Routine annual gynecologic monitoring advised.",monitor,train,approved
+"Mild mucosal hypervascularity on cystoscopy. Follow-up urine cytology and surveillance cystoscopy in 6 months.",monitor,train,approved
+"Indeterminate 6 mm renal cortical lesion. Recommend contrast-enhanced CT or ultrasound surveillance in 6 months.",monitor,train,approved
+"Mild symmetric enlargement of the pituitary gland without focal adenoma. Recommend endocrine monitoring.",monitor,train,approved
+"Stable calcified granuloma in the right lower lung. No active intervention, monitor if symptoms change.",monitor,train,approved
+"Mild interstitial prominence at bilateral lung bases. Recommend clinical correlation and pulmonary function testing.",monitor,train,approved
+"Borderline elevated serum uric acid level. Recommend lifestyle modification and follow-up lab check in 6 months.",monitor,train,approved
+"Small subpleural blebs at lung apices. Recommend smoking cessation and monitoring for spontaneous pneumothorax.",monitor,train,approved
+"Equivocal thickening of the terminal ileum. Recommend correlation with clinical symptoms and follow-up enterography.",monitor,train,approved
+"Mild degenerative cartilage loss in the medial compartment of left knee. Monitor and consider physical therapy.",monitor,train,approved
+"Acute displaced fracture of the left femoral neck. Recommend immediate orthopedic surgical evaluation.",prompt,train,approved
+"Large right-sided tension pneumothorax with mediastinal shift. Requires prompt emergency decompression.",prompt,train,approved
+"Acute non-displaced scaphoid fracture of the right wrist. Recommend prompt orthopedic evaluation and casting.",prompt,train,approved
+"Critical alert: high-grade stenosis of the internal carotid artery. Urgent vascular surgery consultation advised.",prompt,train,approved
+"CT angiogram reveals acute pulmonary embolism in right main pulmonary artery. Urgent clinical management required.",prompt,train,approved
+"Acute intracranial subarachnoid hemorrhage noted in basal cisterns. Prompt neurosurgical consultation required.",prompt,train,approved
+"Marked interval enlargement of 2.8 cm spiculated pulmonary mass. Recommend prompt tissue biopsy and oncology consult.",prompt,train,approved
+"Acute small bowel obstruction with transition point in mid-ileum. Recommend prompt surgical evaluation.",prompt,train,approved
+"High-grade hydronephrosis with obstructing 9 mm proximal ureteral stone. Prompt urologic intervention indicated.",prompt,train,approved
+"Acute ST-elevation myocardial infarction pattern noted on electrocardiogram. Requires immediate cardiology attention.",prompt,train,approved
+"Severe deep venous thrombosis involving the left common femoral and popliteal veins. Urgent anticoagulation evaluation.",prompt,train,approved
+"Signs of acute ascending cholangitis with common bile duct dilatation and fever. Urgent gastroenterology review.",prompt,train,approved
+"Perforated duodenal ulcer with free intraperitoneal air. Immediate emergency surgical consultation required.",prompt,train,approved
+"Rapidly progressive multilobar pneumonia with severe hypoxemia. Prompt clinical admission and evaluation.",prompt,train,approved
+"Acute aortic dissection Stanford type A identified on thoracic CT angiogram. Immediate cardiothoracic surgery consult.",prompt,train,approved
+"Acute bacterial meningitis cannot be excluded based on CSF pleocytosis. Prompt infectious disease treatment.",prompt,train,approved
+"Severe thrombocytopenia with platelet count under 10,000 per microliter. Requires prompt hematology evaluation.",prompt,train,approved
+"Critical hyperkalemia with potassium of 6.8 mmol/L and EKG changes. Immediate clinical intervention required.",prompt,train,approved
+"Acute compartment syndrome suspected in lower right leg after trauma. Urgent orthopedic evaluation needed.",prompt,train,approved
+"High-grade spinal cord compression at T8 level secondary to epidural mass. Prompt spine surgery review.",prompt,train,approved
+"Large pericardial effusion with signs of early cardiac tamponade. Prompt echocardiographic guided pericardiocentesis.",prompt,train,approved
+"Suspected acute arterial occlusion of the right lower extremity. Urgent vascular surgery evaluation indicated.",prompt,train,approved
+"Marked elevation of intracranial pressure with uncal herniation. Immediate neurocritical care evaluation.",prompt,train,approved
+"Acute ectopic pregnancy with hemoperitoneum and right adnexal mass. Urgent gynecologic surgical management.",prompt,train,approved
+"Signs of acute necrotizing fasciitis in the left groin. Requires immediate surgical debridement evaluation.",prompt,train,approved
+"Critical metabolic acidosis with high anion gap and severe hypoglycemia. Immediate intensive care evaluation.",prompt,train,approved
+"Acute complete retinal detachment involving the macula. Prompt ophthalmology surgical evaluation needed.",prompt,train,approved
+"Marked progression of malignant pleural effusion with severe respiratory distress. Urgent thoracentesis needed.",prompt,train,approved
+"CT shows acute cerebellar infarction with mass effect on fourth ventricle. Urgent neurosurgical consultation.",prompt,train,approved
+"Severe acute pancreatitis with peripancreatic necrosis and fluid collection. Prompt clinical hospitalization.",prompt,train,approved
+"Acute mesenteric ischemia with pneumatosis intestinalis. Requires immediate emergency surgical exploration.",prompt,train,approved
+"New left-sided dense hemiplegia and facial droop within 2-hour window. Urgent acute stroke protocol evaluation.",prompt,train,approved
+"Marked tracheal compression from rapidly growing thyroid mass with stridor. Urgent airway evaluation required.",prompt,train,approved
+"Acute suppurative appendicitis with appendicolith and localized perforation. Prompt surgical intervention.",prompt,train,approved
+"Severe symptomatic anemia with hemoglobin of 5.2 g/dL and active bleeding. Urgent transfusion and endoscopy.",prompt,train,approved
+"Unstable cervical spine fracture of C2 odontoid process. Prompt neurosurgical stabilization required.",prompt,train,approved
+"Critical neutropenia with absolute neutrophil count below 200 and fever. Urgent protective isolation and antibiotics.",prompt,train,approved
+"Acute ischemic colitis with bowel wall thickening and free fluid. Urgent surgical and gastroenterology review.",prompt,train,approved
+"Large subdural hematoma measuring 14 mm with 8 mm midline shift. Requires prompt neurosurgical evacuation.",prompt,train,approved
+"Acute testicular torsion on Doppler ultrasound with absent vascular flow. Immediate urologic surgery required.",prompt,train,approved
+"Significant elevation in cardiac enzymes with progressive refractory chest pain. Prompt cardiac catheterization.",prompt,train,approved
+"High-grade partial upper airway obstruction secondary to retropharyngeal abscess. Urgent ENT drainage evaluation.",prompt,train,approved
+"Massive gastrointestinal hemorrhage with hemodynamic instability. Immediate resuscitation and endoscopy.",prompt,train,approved
+"Acute embolic occlusion of the superior mesenteric artery. Prompt endovascular or surgical revascularization.",prompt,train,approved
+"Severe diabetic ketoacidosis with arterial pH 7.08 and lethargy. Immediate emergency medical resuscitation.",prompt,train,approved
+"Acute pyelonephritis complicated by renal abscess formation. Urgent urologic evaluation and intravenous therapy.",prompt,train,approved
+"High-risk pulmonary nodule with rapid doubling time and pleural invasion. Prompt multidisciplinary oncology review.",prompt,train,approved
+"Acute limb ischemia of the left hand with absent radial pulse. Urgent vascular intervention required.",prompt,train,approved
+"Severe preeclampsia with visual disturbances and blood pressure 190/115. Immediate obstetric evaluation.",prompt,train,approved
+"Acute septic arthritis of the right knee with purulent aspirate. Prompt orthopedic surgical washout indicated.",prompt,train,approved
+"Normal posteroanterior and lateral chest radiograph. Routine primary care follow-up as planned.",routine,dev,approved
+"No acute osseous fracture or malalignment identified in right shoulder. Routine physical activity.",routine,dev,approved
+"Normal magnetic resonance imaging of the lumbar spine. Routine conservative therapy.",routine,dev,approved
+"Serum creatinine, BUN, and estimated GFR are within normal limits. Routine outpatient review.",routine,dev,approved
+"No acute intracranial abnormality or hemorrhage demonstrated on CT. Routine follow-up.",routine,dev,approved
+"Bilateral screening mammography is negative for malignancy. Routine annual screening recommended.",routine,dev,approved
+"Abdominal ultrasound shows normal gallbladder and biliary tree. Routine clinical check.",routine,dev,approved
+"Thyroid gland appears normal in size without mass or asymmetry. Routine preventive care.",routine,dev,approved
+"Echocardiogram demonstrates preserved left ventricular ejection fraction of 62%. Routine visit.",routine,dev,approved
+"Normal complete blood count with normal white cell differential. Routine annual exam.",routine,dev,approved
+"Clear lung fields bilaterally with normal pulmonary vasculature. Routine follow-up.",routine,dev,approved
+"No acute fracture or dislocation in the left knee. Routine rehabilitation exercises.",routine,dev,approved
+"Stable appearance of benign simple renal cyst measuring 1.5 cm. Routine follow-up.",routine,dev,approved
+"Unremarkable CT scan of the brain with symmetric ventricles. Routine primary care visit.",routine,dev,approved
+"Bone mineral density evaluation shows normal T-score. Routine follow-up in two years.",routine,dev,approved
+"Indeterminate 4 mm non-calcified pulmonary nodule. Follow-up low-dose CT in 12 months advised.",monitor,dev,approved
+"Mild degenerative disc disease and facet arthropathy at L5-S1. Suggest clinical monitoring.",monitor,dev,approved
+"Small stable 6 mm thyroid nodule in right lobe. Surveillance ultrasound in 1 year recommended.",monitor,dev,approved
+"Mild concentric left ventricular wall thickening. Recommend outpatient blood pressure monitoring.",monitor,dev,approved
+"Borderline fasting glucose and HbA1c of 5.8%. Recommend dietary lifestyle surveillance.",monitor,dev,approved
+"Stable appearance of 1.1 cm hepatic hemangioma. Follow-up ultrasound in one year if indicated.",monitor,dev,approved
+"Mild mucosal thickening in right maxillary sinus. Monitor symptoms with outpatient care.",monitor,dev,approved
+"Trace bilateral bibasilar dependent atelectasis. Outpatient clinical monitoring advised.",monitor,dev,approved
+"Slightly elevated serum ferritin level. Recommend repeat iron profile and surveillance.",monitor,dev,approved
+"Small subcentimeter mesenteric lymph nodes. Suggest short-interval follow-up imaging in 6 months.",monitor,dev,approved
+"Mild degenerative cartilage thinning of the right knee joint. Physical therapy and monitoring.",monitor,dev,approved
+"Stable 3 mm non-obstructing renal calculus. Adequate oral hydration and surveillance.",monitor,dev,approved
+"Mild osteopenia demonstrated on DEXA scan. Calcium, vitamin D, and monitoring advised.",monitor,dev,approved
+"Equivocal ground-glass haze in left lung base. Suggest follow-up chest radiograph in 8 weeks.",monitor,dev,approved
+"Borderline enlarged prostate on pelvic ultrasound. Recommend outpatient PSA monitoring.",monitor,dev,approved
+"Acute comminuted fracture of the right distal radius. Recommend prompt orthopedic evaluation.",prompt,dev,approved
+"Large left-sided pneumothorax with lung collapse. Requires prompt clinical intervention.",prompt,dev,approved
+"Acute subarachnoid hemorrhage in bilateral sylvian fissures. Prompt neurosurgical consultation.",prompt,dev,approved
+"Critical alert: CT pulmonary angiogram confirms saddle pulmonary embolism. Prompt treatment.",prompt,dev,approved
+"Marked interval growth of spiculated pulmonary lesion. Prompt biopsy and oncology review required.",prompt,dev,approved
+"Signs of acute small bowel strangulation and ischemia. Prompt emergency surgical consultation.",prompt,dev,approved
+"Acute ST segment elevation in anterior leads. Immediate cardiology evaluation for catheterization.",prompt,dev,approved
+"Obstructing ureteral calculus with severe hydronephrosis and fever. Prompt urologic drainage.",prompt,dev,approved
+"Acute extradural hematoma with 7 mm mass effect. Prompt neurosurgical decompression required.",prompt,dev,approved
+"Critical hyperkalemia of 6.9 mEq/L with widened QRS complexes. Immediate medical management.",prompt,dev,approved
+"Acute ascending aortic aneurysm dissection. Immediate emergency cardiothoracic surgical transfer.",prompt,dev,approved
+"Severe thrombocytopenia with active petechiae and mucosal bleeding. Prompt hematology review.",prompt,dev,approved
+"Acute suppurative appendicitis with localized wall defect. Prompt laparoscopic surgical consult.",prompt,dev,approved
+"High-grade spinal cord compression at T10 vertebra. Prompt neurosurgical evaluation indicated.",prompt,dev,approved
+"Acute arterial occlusion of the right popliteal artery. Prompt vascular surgical revascularization.",prompt,dev,approved
+"No acute cardiopulmonary disease. Normal cardiac silhouette. Routine annual primary care visit.",routine,test,approved
+"Unremarkable radiograph of the left hand and wrist. Routine activity as tolerated.",routine,test,approved
+"Normal magnetic resonance imaging of the brain without mass or stroke. Routine follow-up.",routine,test,approved
+"Bilateral screening mammogram shows no evidence of malignancy. Routine annual mammography.",routine,test,approved
+"Routine laboratory panel demonstrates normal renal, liver, and hematologic parameters.",routine,test,approved
+"Clear lung fields with sharp costophrenic angles. Routine primary care clinic follow-up.",routine,test,approved
+"No acute fracture or dislocation in the right ankle joint. Routine weight bearing.",routine,test,approved
+"Normal ultrasound examination of the liver, gallbladder, and kidneys. Routine check.",routine,test,approved
+"Stable degenerative changes of the cervical spine. Routine physical therapy and home exercises.",routine,test,approved
+"Normal electrocardiogram with sinus rhythm and no acute ischemia. Routine follow-up.",routine,test,approved
+"Small 4 mm indeterminate nodule in right lower lobe. Recommend repeat chest CT in 6 months.",monitor,test,approved
+"Mild degenerative disc disease at L3-L4 and L4-L5. Recommend conservative management and monitoring.",monitor,test,approved
+"Thyroid ultrasound shows 8 mm nodule with benign characteristics. Suggest surveillance ultrasound in 12 months.",monitor,test,approved
+"Trace pericardial effusion without tamponade physiology. Follow-up echocardiogram in 6 months.",monitor,test,approved
+"Borderline elevated fasting cholesterol. Lifestyle modification and outpatient lipid surveillance.",monitor,test,approved
+"Mild bilateral subcortical white matter hyperintensities. Outpatient cardiovascular monitoring.",monitor,test,approved
+"Stable 1.4 cm simple hepatic cyst. Suggest routine annual monitoring if symptoms develop.",monitor,test,approved
+"Mild mucosal thickening of ethmoid air cells. Symptom correlation and outpatient monitoring.",monitor,test,approved
+"Subcentimeter non-calcified pulmonary nodule. Follow-up low-dose chest CT in 6 to 12 months.",monitor,test,approved
+"Borderline osteopenia of the femoral neck. Suggest DEXA surveillance in two years.",monitor,test,approved
+"Acute displaced bimalleolar ankle fracture. Recommend prompt orthopedic surgical assessment.",prompt,test,approved
+"Large right-sided tension pneumothorax with shift. Urgent emergency thoracic decompression required.",prompt,test,approved
+"Acute intraparenchymal hemorrhage in basal ganglia with mass effect. Prompt neurosurgical review.",prompt,test,approved
+"CT angiogram demonstrates acute occlusive pulmonary embolism. Urgent medical treatment indicated.",prompt,test,approved
+"Spiculated 3 cm lung mass with mediastinal lymphadenopathy. Prompt tissue biopsy and oncology consult.",prompt,test,approved
+"Acute cecal volvulus with marked cecal distension. Requires prompt surgical intervention.",prompt,test,approved
+"Acute myocardial infarction pattern on 12-lead ECG. Immediate emergency cardiology catheterization.",prompt,test,approved
+"High-grade ureteral obstruction with perinephric stranding. Prompt urologic stenting or nephrostomy.",prompt,test,approved
+"Acute subdural hematoma with midline shift. Prompt neurosurgical consultation and evacuation.",prompt,test,approved
+"Critical severe hyperkalemia and peaked T waves. Immediate clinical emergency intervention required.",prompt,test,approved

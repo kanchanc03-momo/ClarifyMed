@@ -1,0 +1,10 @@
+text,label,split
+"Synthetic example: No acute finding. Routine clinical correlation is advised.",routine,train
+"Synthetic example: Follow-up imaging in six months is recommended.",monitor,train
+"Synthetic example: The report explicitly recommends prompt clinical review.",prompt,train
+"Synthetic validation example for routine discussion.",routine,dev
+"Synthetic validation example recommending follow-up.",monitor,dev
+"Synthetic validation example requesting prompt review.",prompt,dev
+"Synthetic held-out routine wording example.",routine,test
+"Synthetic held-out monitoring wording example.",monitor,test
+"Synthetic held-out prompt-review wording example.",prompt,test

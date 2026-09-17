@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.log
+data/
+ml/private-data/
+ml/artifacts/
+ml/checkpoints/
+*.pt
+*.pth
+*.safetensors
+__pycache__/
+*.pyc
+!ml/artifacts/README.md

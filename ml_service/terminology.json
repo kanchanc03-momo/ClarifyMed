@@ -1,0 +1,12 @@
+{
+  "opacity": {"plain": "an area that looks different from the surrounding tissue", "context": "Opacity describes an appearance on an image; it is not a diagnosis by itself."},
+  "nodule": {"plain": "a small rounded spot", "context": "A nodule is a description of shape and size. Its meaning depends on location, history, and comparison imaging."},
+  "lesion": {"plain": "an area of tissue that appears different", "context": "Lesion is a broad descriptive term and does not by itself say whether a change is harmful."},
+  "mass": {"plain": "an area or lump seen on the study", "context": "Mass describes a finding. Additional clinical context is needed to determine its cause."},
+  "effusion": {"plain": "a collection of fluid", "context": "An effusion means fluid is present in a space where the report is looking."},
+  "fracture": {"plain": "a break or crack in a bone", "context": "The report wording and clinical examination determine the type and significance of a fracture."},
+  "consolidation": {"plain": "an area of lung filled with material instead of air", "context": "Consolidation is an imaging pattern with several possible causes; the report and clinician provide context."},
+  "cardiomegaly": {"plain": "an enlarged-looking heart", "context": "This describes heart size on the image and can be affected by imaging technique."},
+  "hypoechoic": {"plain": "an area that appears darker on ultrasound", "context": "Hypoechoic describes appearance, not a specific diagnosis."},
+  "osteolytic": {"plain": "an area where bone appears to have been broken down", "context": "This is an imaging description that needs clinical evaluation to determine the cause."}
+}

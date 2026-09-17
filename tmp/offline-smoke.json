@@ -1,0 +1,31 @@
+{
+  "synthetic_inputs_only": true,
+  "results": [
+    {
+      "case": "text_pdf",
+      "ok": true,
+      "seconds": 17.24,
+      "extractionMethod": "pdf_text",
+      "entityCount": 4,
+      "modelVersions": {
+        "ner": "d4data/biomedical-ner-all",
+        "severity": "scikit_learn_tfidf_lr"
+      },
+      "warnings": []
+    },
+    {
+      "case": "scanned_png",
+      "ok": true,
+      "seconds": 18.812,
+      "extractionMethod": "image_ocr",
+      "entityCount": 4,
+      "modelVersions": {
+        "ner": "d4data/biomedical-ner-all",
+        "severity": "scikit_learn_tfidf_lr"
+      },
+      "warnings": [
+        "Text was extracted with OCR and may contain errors; compare with the original report."
+      ]
+    }
+  ]
+}
