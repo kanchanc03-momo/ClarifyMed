@@ -16,3 +16,16 @@ test('distinguishes actionable analysis failures without leaking upstream conten
     assert.doesNotMatch(result.error, /private upstream payload/);
   }
 });
+
+test('reports the provider retry delay when it is supplied', () => {
+  const result = analysisErrorResponse({ status: 429, headers: { 'retry-after': '17.2' } });
+  assert.equal(result.retryAfter, 18);
+  assert.match(result.error, /18 seconds/);
+});
+
+test('uses provider reset headers and does not mistake a temporary limit for exhausted usage', () => {
+  const result = analysisErrorResponse({ status: 429, headers: { 'x-ratelimit-reset-tokens': '1m0s' } });
+  assert.equal(result.retryAfter, 60);
+  assert.match(result.error, /temporarily rate-limited/);
+  assert.doesNotMatch(result.error, /usage limit/);
+});

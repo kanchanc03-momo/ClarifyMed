@@ -18,6 +18,7 @@ class ExtractedEntity:
     start: int
     end: int
     score: float
+    assertion: str = "present"
     simplified: str | None = None
 
 

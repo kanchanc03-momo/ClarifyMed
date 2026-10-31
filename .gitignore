@@ -13,4 +13,6 @@ ml/checkpoints/
 *.safetensors
 __pycache__/
 *.pyc
+*.pdf
+tmp/
 !ml/artifacts/README.md

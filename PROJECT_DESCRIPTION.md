@@ -8,7 +8,7 @@ The target implementation combines separate NLP and computer-vision pipelines. T
 
 ## 2. Chosen model architecture
 
-Current implementation update (15 September 2026): the installed follow-up model is the CPU TF-IDF/logistic-regression classifier. DistilBERT is optional research. The selected X-ray training dataset is FracAtlas, with a dedicated fracture-classification runtime adapter; its Colab training is still blocked by a user-reported error. MURA is an alternative supported checkpoint format. The table below records the original target architecture.
+Current implementation update (22 September 2026): the installed follow-up model is the CPU TF-IDF/logistic-regression classifier. DistilBERT is optional research. The X-ray path is scoped only to a GRAZPEDWRI-DX-style YOLO detector for possible fracture-like regions in pediatric wrist X-rays. It rejects general X-ray claims and does not name bones or fracture types. No evaluated detector artifact is installed.
 
 | Component | Purpose | Model approach | Intended runtime |
 |---|---|---|---|
@@ -16,17 +16,16 @@ Current implementation update (15 September 2026): the installed follow-up model
 | `d4data/biomedical-ner-all` | Extract biomedical entities from report text | Pretrained Apache-2.0 model, initially used as-is | CPU |
 | CHV dictionary mapping | Convert mapped medical terminology to consumer language | Curated rule-based vocabulary | CPU |
 | DistilBERT | Classify source-supported follow-up wording | Fine-tuned on a governed, clinician-reviewed labeled dataset | CPU inference; Colab/Kaggle GPU training |
-| MobileNetV2 | Classify supported musculoskeletal X-rays as normal/abnormal | Transfer learning on MURA | CPU inference where latency permits; Colab/Kaggle GPU training |
-| Grad-CAM | Show model-sensitive image regions | Explainability technique applied to the trained CNN | CPU or GPU |
+| YOLO | Detect possible fracture-like regions in pediatric wrist X-rays | Object detection trained on GRAZPEDWRI-DX annotations | CPU inference where latency permits; Colab/Kaggle GPU training |
 
 ### Important scope constraints
 
 - This table describes the **target offline architecture**. The current web prototype still uses Groq and requires an API key until the local pipelines are integrated and validated.
-- MURA contains **musculoskeletal/bone X-rays**, not general chest or whole-body X-rays. A MobileNetV2 trained on MURA must reject unsupported modalities and must not be presented as a general X-ray model.
-- A Grad-CAM heatmap shows regions influencing a model prediction; it does not prove lesion localization or clinical correctness.
+- GRAZPEDWRI-DX supports pediatric wrist X-ray localization, not general chest, whole-body, adult, or other pediatric X-rays. The detector must reject unsupported uses.
+- A bounding box is a model-predicted region, not a confirmed diagnosis or a precise anatomical label. Dataset annotations and X-rays can contain uncertainty, including occult fractures.
 - A 200–300-example severity dataset can support a student prototype experiment, but it is not enough by itself to establish product-level clinical safety. Labels, splits, class balance, inter-rater agreement, calibration, and external evaluation must be documented.
 - Follow-up labels should be tied to explicit report wording and clinician-reviewed policy. The UI must not imply emergency triage or diagnostic certainty.
-- UMLS/CHV and MURA access, redistribution, and deployment terms must be reviewed before including data or derived artifacts in a public repository or commercial product.
+- UMLS/CHV and GRAZPEDWRI-DX access, redistribution, and deployment terms must be reviewed before including data or derived artifacts in a public repository or commercial product.
 
 ## 3. Training and deployment
 

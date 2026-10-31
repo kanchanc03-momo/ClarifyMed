@@ -4,6 +4,7 @@ import unittest
 from ml_service.file_validation import detect_type, validate_upload
 from ml_service.severity import classify
 from ml_service.simplification import simplify
+from ml_service.ner import _assertion
 
 
 class CorePipelineTests(unittest.TestCase):
@@ -48,6 +49,11 @@ class CorePipelineTests(unittest.TestCase):
             self.assertEqual(level, "monitor")
             self.assertEqual(source, "explicit_wording_fallback")
             self.assertTrue(evidence)
+
+    def test_entity_assertions_preserve_negation_uncertainty_and_history(self):
+        self.assertEqual(_assertion('No evidence of fracture.', 14), 'absent')
+        self.assertEqual(_assertion('Possible fracture.', 9), 'possible')
+        self.assertEqual(_assertion('History of fracture.', 17), 'historical')
 
 
 if __name__ == "__main__":

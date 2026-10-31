@@ -43,10 +43,11 @@ text,label,split,review_status
 "Chest X-ray shows clear costophrenic angles and normal mediastinum. Routine outpatient care.",routine,train,approved
 "Stable mild chronic microvascular ischemic white matter changes. Routine risk factor management.",routine,train,approved
 "Normal joint spaces in the bilateral hips without avascular necrosis. Routine follow-up.",routine,train,approved
+"Bilateral dilated fundus examination reveals clear media, normal optic discs, and healthy retinal vasculature without diabetic changes. Routine annual screening.",routine,train,approved
+"Normal retinal examination with sharp foveal reflex and no microaneurysms or hemorrhages. Routine annual diabetic eye exam advised.",routine,train,approved
+"No diabetic retinopathy, no macular edema, and normal optic nerves bilaterally. Routine 12-month follow-up recommended.",routine,train,approved
+"Normal bilateral fundus examination with intact retinal architecture and distinct optic disc margins. Routine annual surveillance.",routine,train,approved
 "Lipid panel demonstrates optimal cholesterol and triglyceride levels. Routine lifestyle maintenance.",routine,train,approved
-"No radiographic signs of active tuberculosis or pneumonia. Routine clinical review.",routine,train,approved
-"Urinalysis is negative for blood, protein, and nitrites. Routine health screening.",routine,train,approved
-"Normal soft tissue contours of the right foot without foreign bodies. Routine care.",routine,train,approved
 "Stable postoperative hip arthroplasty with intact alignment. Routine annual orthopedic review.",routine,train,approved
 "No acute intracranial pathology or midline shift. Routine follow-up as clinically indicated.",routine,train,approved
 "Isolated 3 mm subpleural nodule in right upper lobe. Recommend follow-up chest CT in 12 months.",monitor,train,approved
@@ -55,8 +56,10 @@ text,label,split,review_status
 "Borderline cardiomegaly noted on chest X-ray. Recommend outpatient echocardiogram and clinical correlation.",monitor,train,approved
 "Small stable non-obstructing 2 mm renal calculus in left kidney. Recommend hydration and surveillance imaging.",monitor,train,approved
 "Hepatic steatosis noted without focal liver lesion. Follow-up liver function tests and monitoring advised.",monitor,train,approved
-"Trace bilateral pleural thickening of uncertain clinical significance. Follow-up imaging in 6 months suggested.",monitor,train,approved
-"Mild mucosal thickening in the maxillary sinuses. Recommend clinical correlation and symptom monitoring.",monitor,train,approved
+"Mild non-proliferative diabetic retinopathy with rare microaneurysms. No macular edema. Recommend retinal monitoring in 6 to 12 months.",monitor,train,approved
+"Dilated fundus exam reveals few dot and blot hemorrhages without neovascularization. Suggest repeat dilated eye examination in 6 months.",monitor,train,approved
+"Fundus photography shows mild diabetic retinopathy with sparse hard exudates outside macula. Recommend glycemic control and 6-month surveillance.",monitor,train,approved
+"Mild background diabetic retinopathy with isolated microaneurysms in the mid-periphery. Ophthalmology monitoring advised.",monitor,train,approved
 "Indeterminate 5 mm pulmonary ground glass opacity. Recommend repeat high-resolution chest CT in 6 months.",monitor,train,approved
 "Mild interval progression of osteopenia in lumbar spine. Recommend follow-up DEXA scan in 1 year.",monitor,train,approved
 "Slightly elevated fasting blood glucose of 115 mg/dL. Recommend repeat HbA1c testing and dietary monitoring.",monitor,train,approved
@@ -99,8 +102,10 @@ text,label,split,review_status
 "Small subpleural blebs at lung apices. Recommend smoking cessation and monitoring for spontaneous pneumothorax.",monitor,train,approved
 "Equivocal thickening of the terminal ileum. Recommend correlation with clinical symptoms and follow-up enterography.",monitor,train,approved
 "Mild degenerative cartilage loss in the medial compartment of left knee. Monitor and consider physical therapy.",monitor,train,approved
-"Acute displaced fracture of the left femoral neck. Recommend immediate orthopedic surgical evaluation.",prompt,train,approved
-"Large right-sided tension pneumothorax with mediastinal shift. Requires prompt emergency decompression.",prompt,train,approved
+"Severe non-proliferative diabetic retinopathy with extensive four-quadrant retinal hemorrhages and venous beading. Prompt vitreoretinal consultation required.",prompt,train,approved
+"Proliferative diabetic retinopathy with active neovascularization of the optic disc. Prompt panretinal photocoagulation evaluation indicated.",prompt,train,approved
+"Diabetic macular edema with foveal thickening and lipid exudates threatening central vision. Prompt retinal specialist evaluation.",prompt,train,approved
+"Acute vitreous hemorrhage secondary to proliferative diabetic retinopathy with sudden vision loss. Immediate ophthalmology consultation.",prompt,train,approved
 "Acute non-displaced scaphoid fracture of the right wrist. Recommend prompt orthopedic evaluation and casting.",prompt,train,approved
 "Critical alert: high-grade stenosis of the internal carotid artery. Urgent vascular surgery consultation advised.",prompt,train,approved
 "CT angiogram reveals acute pulmonary embolism in right main pulmonary artery. Urgent clinical management required.",prompt,train,approved
@@ -164,6 +169,7 @@ text,label,split,review_status
 "Stable appearance of benign simple renal cyst measuring 1.5 cm. Routine follow-up.",routine,dev,approved
 "Unremarkable CT scan of the brain with symmetric ventricles. Routine primary care visit.",routine,dev,approved
 "Bone mineral density evaluation shows normal T-score. Routine follow-up in two years.",routine,dev,approved
+"Dilated ophthalmoscopic exam reveals normal macula, optic disc, and retina without diabetic microvascular changes. Routine annual screening.",routine,dev,approved
 "Indeterminate 4 mm non-calcified pulmonary nodule. Follow-up low-dose CT in 12 months advised.",monitor,dev,approved
 "Mild degenerative disc disease and facet arthropathy at L5-S1. Suggest clinical monitoring.",monitor,dev,approved
 "Small stable 6 mm thyroid nodule in right lobe. Surveillance ultrasound in 1 year recommended.",monitor,dev,approved
@@ -179,6 +185,7 @@ text,label,split,review_status
 "Mild osteopenia demonstrated on DEXA scan. Calcium, vitamin D, and monitoring advised.",monitor,dev,approved
 "Equivocal ground-glass haze in left lung base. Suggest follow-up chest radiograph in 8 weeks.",monitor,dev,approved
 "Borderline enlarged prostate on pelvic ultrasound. Recommend outpatient PSA monitoring.",monitor,dev,approved
+"Moderate non-proliferative diabetic retinopathy with bilateral retinal hemorrhages and microaneurysms. Dilated fundus monitoring in 3 to 6 months advised.",monitor,dev,approved
 "Acute comminuted fracture of the right distal radius. Recommend prompt orthopedic evaluation.",prompt,dev,approved
 "Large left-sided pneumothorax with lung collapse. Requires prompt clinical intervention.",prompt,dev,approved
 "Acute subarachnoid hemorrhage in bilateral sylvian fissures. Prompt neurosurgical consultation.",prompt,dev,approved
@@ -191,6 +198,7 @@ text,label,split,review_status
 "Critical hyperkalemia of 6.9 mEq/L with widened QRS complexes. Immediate medical management.",prompt,dev,approved
 "Acute ascending aortic aneurysm dissection. Immediate emergency cardiothoracic surgical transfer.",prompt,dev,approved
 "Severe thrombocytopenia with active petechiae and mucosal bleeding. Prompt hematology review.",prompt,dev,approved
+"Active retinal neovascularization with pre-retinal hemorrhage in diabetic patient. Prompt laser photocoagulation or anti-VEGF consultation.",prompt,dev,approved
 "Acute suppurative appendicitis with localized wall defect. Prompt laparoscopic surgical consult.",prompt,dev,approved
 "High-grade spinal cord compression at T10 vertebra. Prompt neurosurgical evaluation indicated.",prompt,dev,approved
 "Acute arterial occlusion of the right popliteal artery. Prompt vascular surgical revascularization.",prompt,dev,approved
@@ -203,7 +211,7 @@ text,label,split,review_status
 "No acute fracture or dislocation in the right ankle joint. Routine weight bearing.",routine,test,approved
 "Normal ultrasound examination of the liver, gallbladder, and kidneys. Routine check.",routine,test,approved
 "Stable degenerative changes of the cervical spine. Routine physical therapy and home exercises.",routine,test,approved
-"Normal electrocardiogram with sinus rhythm and no acute ischemia. Routine follow-up.",routine,test,approved
+"Fundus photography demonstrates normal optic disc, clear macula, and no signs of diabetic retinopathy. Routine annual diabetic eye exam.",routine,test,approved
 "Small 4 mm indeterminate nodule in right lower lobe. Recommend repeat chest CT in 6 months.",monitor,test,approved
 "Mild degenerative disc disease at L3-L4 and L4-L5. Recommend conservative management and monitoring.",monitor,test,approved
 "Thyroid ultrasound shows 8 mm nodule with benign characteristics. Suggest surveillance ultrasound in 12 months.",monitor,test,approved
@@ -213,7 +221,7 @@ text,label,split,review_status
 "Stable 1.4 cm simple hepatic cyst. Suggest routine annual monitoring if symptoms develop.",monitor,test,approved
 "Mild mucosal thickening of ethmoid air cells. Symptom correlation and outpatient monitoring.",monitor,test,approved
 "Subcentimeter non-calcified pulmonary nodule. Follow-up low-dose chest CT in 6 to 12 months.",monitor,test,approved
-"Borderline osteopenia of the femoral neck. Suggest DEXA surveillance in two years.",monitor,test,approved
+"Mild diabetic retinopathy with occasional retinal microaneurysms and no macular edema. Recommend eye clinic monitoring in 6 to 12 months.",monitor,test,approved
 "Acute displaced bimalleolar ankle fracture. Recommend prompt orthopedic surgical assessment.",prompt,test,approved
 "Large right-sided tension pneumothorax with shift. Urgent emergency thoracic decompression required.",prompt,test,approved
 "Acute intraparenchymal hemorrhage in basal ganglia with mass effect. Prompt neurosurgical review.",prompt,test,approved
@@ -223,4 +231,4 @@ text,label,split,review_status
 "Acute myocardial infarction pattern on 12-lead ECG. Immediate emergency cardiology catheterization.",prompt,test,approved
 "High-grade ureteral obstruction with perinephric stranding. Prompt urologic stenting or nephrostomy.",prompt,test,approved
 "Acute subdural hematoma with midline shift. Prompt neurosurgical consultation and evacuation.",prompt,test,approved
-"Critical severe hyperkalemia and peaked T waves. Immediate clinical emergency intervention required.",prompt,test,approved
+"Proliferative diabetic retinopathy complicated by tractional retinal detachment and vitreous hemorrhage. Prompt vitreoretinal surgical evaluation required.",prompt,test,approved

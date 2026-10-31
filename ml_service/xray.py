@@ -1,117 +1,163 @@
+"""Fail-closed pediatric wrist fracture-region detector."""
 from __future__ import annotations
 
 import base64
+import hashlib
+import json
+import math
 from io import BytesIO
 
-from .settings import XRAY_MODEL_PATH
+from PIL import Image, UnidentifiedImageError
+
+from .settings import XRAY_MODEL_PATH, XRAY_SCORE_THRESHOLD, XRAY_EVALUATION_PATH, XRAY_SHA256
+
+DATASET = "GRAZPEDWRI-DX"
+SCOPE = "Pediatric wrist X-rays only; possible fracture-like region detection"
+FRACTURE_CLASS_ID = 0  # evaluation.json has the sole detection class: fracture
+FRACTURE_CLASS_NAME = "possible fracture-like region"
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 
 
-def validate_checkpoint(checkpoint):
-    if not isinstance(checkpoint, dict) or checkpoint.get('architecture') != 'mobilenet_v2':
-        raise ValueError('The X-ray model artifact metadata is invalid.')
-    dataset = checkpoint.get('dataset')
-    if dataset == 'FracAtlas':
-        expected = {'scope': 'FracAtlas musculoskeletal fracture classification only',
-                    'labels': ['non_fractured', 'fractured'], 'image_size': 224,
-                    'normalization_mean': [.485, .456, .406],
-                    'normalization_std': [.229, .224, .225], 'threshold': .5}
-    elif dataset == 'MURA-v1.1':
-        expected = {'scope': 'MURA musculoskeletal radiographs only',
-                    'labels': ['normal', 'abnormal'], 'image_size': 224}
-    else:
-        raise ValueError('Unsupported X-ray dataset metadata. Install a FracAtlas or MURA checkpoint.')
-    if any(checkpoint.get(key) != value for key, value in expected.items()):
-        raise ValueError('The X-ray labels or preprocessing metadata do not match the supported model.')
-    if not isinstance(checkpoint.get('state_dict'), dict):
-        raise ValueError('The X-ray checkpoint has no model weights.')
-    return dataset
+def verify_artifacts(model_path=XRAY_MODEL_PATH, evaluation_path=XRAY_EVALUATION_PATH):
+    if not model_path.is_file() or not evaluation_path.is_file():
+        raise ValueError("The reviewed pediatric wrist X-ray model artifacts are unavailable.")
+    actual_hash = hashlib.sha256(model_path.read_bytes()).hexdigest()
+    if actual_hash.casefold() != XRAY_SHA256.casefold():
+        raise ValueError("The pediatric wrist X-ray model checksum does not match the reviewed checkpoint.")
+    try:
+        evaluation = json.loads(evaluation_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError("The pediatric wrist X-ray evaluation manifest is invalid.") from error
+    model = evaluation.get("model", {})
+    if model.get("sha256", "").casefold() != actual_hash.casefold():
+        raise ValueError("The model checksum does not match evaluation.json.")
+    if (model.get("checkpoint") != model_path.name or model.get("architecture") != "YOLOv8n"
+            or evaluation.get("dataset", {}).get("source") != DATASET
+            or evaluation.get("scope") != SCOPE
+            or evaluation.get("threshold", {}).get("value") != XRAY_SCORE_THRESHOLD
+            or evaluation.get("research_demo_gate", {}).get("passed") is not True):
+        raise ValueError("The pediatric wrist X-ray model manifest is incompatible with this application.")
+    return evaluation
 
 
 def _load_model():
-    import torch
-    from torch import nn
-    from torchvision import models
+    from ultralytics import YOLO
 
-    if not XRAY_MODEL_PATH.is_file():
-        raise ValueError("The trained X-ray model is not installed. Set XRAY_MODEL_PATH to the evaluated FracAtlas or MURA model.pt artifact.")
-    checkpoint = torch.load(XRAY_MODEL_PATH, map_location="cpu", weights_only=True)
-    dataset = validate_checkpoint(checkpoint)
-    model = models.mobilenet_v2(weights=None)
-    model.classifier[1] = nn.Linear(model.last_channel, 2)
-    model.load_state_dict(checkpoint["state_dict"])
-    model.eval()
-    return model, dataset
-
-
-def _grad_cam(model, tensor, target_class: int):
-    import torch
-    import torch.nn.functional as functional
-
-    activations = gradients = None
-    def forward_hook(_module, _input, output):
-        nonlocal activations
-        activations = output
-    def backward_hook(_module, _grad_input, grad_output):
-        nonlocal gradients
-        gradients = grad_output[0]
-    layer = model.features[-1]
-    first = layer.register_forward_hook(forward_hook)
-    second = layer.register_full_backward_hook(backward_hook)
+    evaluation = verify_artifacts()
     try:
-        logits = model(tensor)
-        model.zero_grad(set_to_none=True)
-        logits[0, target_class].backward()
-    finally:
-        first.remove()
-        second.remove()
-    weights = gradients.mean(dim=(2, 3), keepdim=True)
-    heatmap = torch.relu((weights * activations).sum(dim=1, keepdim=True))
-    heatmap = functional.interpolate(heatmap, size=(224, 224), mode="bilinear", align_corners=False)[0, 0]
-    heatmap -= heatmap.min()
-    heatmap /= heatmap.max().clamp_min(1e-8)
-    return logits.detach(), heatmap.detach().numpy()
+        model = YOLO(str(XRAY_MODEL_PATH), task="detect")
+        names = model.names
+        if isinstance(names, dict):
+            class_names = {int(key): value for key, value in names.items()}
+        else:
+            class_names = dict(enumerate(names))
+        if class_names != {FRACTURE_CLASS_ID: FRACTURE_CLASS_NAME}:
+            raise ValueError("The YOLO checkpoint class mapping is not the reviewed pediatric wrist fracture-region class.")
+    except Exception as error:
+        raise RuntimeError("The pediatric wrist X-ray model is unavailable; analysis was refused.") from error
+    return model, XRAY_SCORE_THRESHOLD
+
+
+def xray_model_ready() -> bool:
+    try:
+        _load_model()
+        return True
+    except Exception:
+        return False
+
+
+def _display_image(image):
+    # GRAZPEDWRI-DX images are often 16-bit grayscale PNGs. YOLO's OpenCV
+    # loader converts these to 8-bit by dropping the low byte; PIL's direct
+    # convert("RGB") clips instead and washes out the image.
+    if image.mode.startswith("I;16"):
+        import numpy as np
+
+        pixels = np.asarray(image, dtype=np.uint16)
+        image = Image.fromarray((pixels >> 8).astype(np.uint8)).convert("RGB")
+    else:
+        image = image.convert("RGB")
+    image.thumbnail((1024, 1024))
+    return image
+
+
+def _annotate(image, detections):
+    from PIL import ImageDraw
+
+    result = image.copy()
+    draw = ImageDraw.Draw(result)
+    for box, score in detections:
+        draw.rectangle(box, outline="#e34b3f", width=max(3, round(min(result.size) / 180)))
+        draw.text((box[0], max(0, box[1] - 16)), f"{score:.0%}", fill="#e34b3f")
+    buffer = BytesIO()
+    result.save(buffer, format="PNG")
+    return "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode("ascii")
+
+
+def _image_data_url(image):
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+    return "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode("ascii")
 
 
 def analyze_xray(data: bytes) -> dict:
-    import numpy as np
-    import torch
-    from PIL import Image
-    from torchvision import transforms
+    if not data:
+        raise ValueError("The uploaded image is empty.")
+    uploaded_sha256 = hashlib.sha256(data).hexdigest()
+    try:
+        with Image.open(BytesIO(data)) as source:
+            if source.format not in {"JPEG", "PNG"}:
+                raise ValueError("X-ray analysis accepts JPG, JPEG, or PNG images only.")
+            source.verify()
+        with Image.open(BytesIO(data)) as source:
+            image = _display_image(source)
+    except (UnidentifiedImageError, OSError) as error:
+        raise ValueError("The uploaded JPG or PNG image is invalid or corrupted.") from error
+    model, threshold = _load_model()
+    try:
+        result = model.predict(image, conf=threshold, verbose=False)[0]
+        predictions = result.boxes
+        boxes, scores, labels = predictions.xyxy.tolist(), predictions.conf.tolist(), predictions.cls.tolist()
+        if not (len(boxes) == len(scores) == len(labels)):
+            raise ValueError("Mismatched detector outputs")
+        eligible = []
+        candidate_scores = []
+        width, height = image.size
+        for box, score, label in zip(boxes, scores, labels):
+            if int(label) != FRACTURE_CLASS_ID or not math.isfinite(float(score)):
+                continue
+            coords = [float(value) for value in box]
+            if len(coords) != 4 or not all(math.isfinite(value) for value in coords):
+                continue
+            x1, y1, x2, y2 = coords
+            if x2 <= x1 or y2 <= y1:
+                continue
+            coords = [round(max(0, min(width if i % 2 == 0 else height, value)), 1) for i, value in enumerate(coords)]
+            candidate_scores.append(float(score))
+            if float(score) >= threshold:
+                eligible.append((coords, float(score)))
+    except Exception as error:
+        raise RuntimeError("The pediatric wrist X-ray model failed; analysis was refused.") from error
 
-    image = Image.open(BytesIO(data)).convert("RGB")
-    original = image.resize((224, 224))
-    transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize([.485,.456,.406],[.229,.224,.225])])
-    model, dataset = _load_model()
-    logits, heatmap = _grad_cam(model, transform(original).unsqueeze(0), 1)
-    probability = float(torch.softmax(logits, dim=1)[0, 1])
-    rgb = np.asarray(original).astype(np.float32)
-    color = np.zeros_like(rgb); color[..., 0] = heatmap * 255; color[..., 1] = heatmap * 150
-    overlay = Image.fromarray(np.clip(rgb * 0.65 + color * 0.35, 0, 255).astype(np.uint8))
-    buffer = BytesIO(); overlay.save(buffer, format="PNG")
-    abnormal = probability >= 0.5
-    finding = "abnormal pattern detected" if abnormal else "no abnormal pattern detected by the prototype model"
-    result = {
-        "documentType": "xray", "title": finding.capitalize(),
-        "summary": f"The prototype musculoskeletal X-ray model assigned {probability:.1%} probability to its abnormal class. This is not a diagnosis and must be reviewed by a qualified clinician.",
-        "context": "This model is limited to MURA-style musculoskeletal radiographs. It does not identify a specific condition and is unsupported for chest, dental, skull, CT, MRI, or other images.",
-        "finding": finding, "location": "Model localization is not clinically validated", "measurement": "Not available",
-        "followUpLevel": "monitor", "followUpLabel": "Clinical review required",
-        "followUpExplanation": "AI image classifications and heatmaps require clinician review regardless of score.",
-        "questions": ["Is this the correct imaging type for this model?", "What does the official radiology report say?", "Does this image require follow-up based on my symptoms and history?"],
-        "limitations": "Research prototype for MURA musculoskeletal radiographs only. Grad-CAM shows model influence, not a confirmed abnormality location.",
-        "heatmapDataUrl": "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode("ascii"),
-        "abnormalProbability": probability,
-        "modelVersions": {"xray": "mura-mobilenetv2", "explainability": "grad-cam"},
+    warning = "The model did not find a fracture-like pattern above its reviewed threshold. This does not mean the X-ray is normal or rule out an injury."
+    common = {
+        "documentType": "xray", "followUpLevel": "monitor", "followUpLabel": "Clinical review required",
+        "followUpExplanation": "A clinician must review the original X-ray and the official report, regardless of this demo output.",
+        "questions": ["What does the official radiology report say?", "Could an injury still be present despite this result?", "What follow-up is appropriate for the symptoms?"],
+        "maxCandidateConfidence": max(candidate_scores, default=None),
+        "uploadedImageSha256": uploaded_sha256,
+        "task": "possible fracture-like region detection in pediatric wrist X-rays only",
+        "limitations": f"{warning} Only pediatric wrist X-rays are supported. Automated inference cannot verify anatomy or patient age; use this only for a confirmed pediatric wrist study. The highlighted box is the model's prediction, not a confirmed fracture location. This research/demo result is not a diagnosis. External dataset testing and clinician review are still required.",
+        "modelVersions": {"xray": "grazpedwri-dx-yolov8n", "task": "pediatric-wrist-fracture-region-detection"},
     }
-    if dataset == 'FracAtlas':
-        finding = 'fractured class selected' if abnormal else 'non-fractured class selected'
-        result.update({
-            'title': finding.capitalize(), 'finding': finding,
-            'summary': f'The prototype assigned an uncalibrated score of {probability:.1%} to the fractured class. This is a research model output, not a diagnosis. A clinician must review the original image and report.',
-            'context': 'This model classifies FracAtlas-style musculoskeletal radiographs for fracture patterns. The non-fractured class does not mean the image is normal or rule out injury.',
-            'limitations': 'FracAtlas research prototype without external clinical validation. Patient and near-duplicate isolation are not established in its training splits. Grad-CAM shows model influence, not a confirmed fracture location.',
-            'fractureScore': probability,
-            'modelVersions': {'xray': 'fracatlas-mobilenetv2', 'explainability': 'grad-cam'},
-        })
-        del result['abnormalProbability']
-    return result
+    if not eligible:
+        return {**common, "title": "No detected fracture-like region", "summary": warning,
+                "context": "The model checks image patterns. It cannot assess symptoms or decide whether treatment is needed. A qualified clinician should interpret the original X-ray and any radiology report.", "finding": "No detected fracture-like region",
+                "location": "Not available", "measurement": "Not available", "annotatedImageDataUrl": _annotate(image, []), "detections": []}
+    detections = [{"boundingBox": {"xMin": box[0], "yMin": box[1], "xMax": box[2], "yMax": box[3], "units": "display-image pixels"}, "confidence": score} for box, score in eligible]
+    best_score = max(score for _, score in eligible)
+    return {**common, "title": "Possible fracture-like region", "summary": "The research model found an area that visually resembles fracture examples from its training data. The highlighted box shows where the model detected that pattern. This does not confirm a fracture or identify its exact type.",
+            "context": "The highlighted box is the model’s prediction, not a confirmed fracture location.",
+            "finding": "Possible fracture-like region", "location": "Highlighted wrist region", "measurement": "Bounding box shown on image",
+            "annotatedImageDataUrl": _annotate(image, eligible), "fractureScore": best_score,
+            "boundingBox": detections[0]["boundingBox"], "detections": detections}

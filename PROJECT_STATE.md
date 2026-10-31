@@ -1,6 +1,42 @@
 ﻿# ClarifyMed Project State
 
-Last updated: 16 September 2026
+Last updated: 28 September 2026
+
+## Upload and X-ray verification pass (28 September 2026)
+
+- Confirmed the production upload path has no fixture filename matching or lookup behavior. The frontend's hard-coded example result was removed. X-ray processing uses the selected upload's bytes and mode; supported filenames are not restricted to dataset names.
+- The UI now names the two modes **Explain a medical report** and **Analyze a pediatric wrist X-ray**. Report mode uses PDF parsing or image OCR followed by the report NLP pipeline and never invokes YOLO. X-ray mode requires a pediatric-wrist confirmation in both Node and Python routes and sends the uploaded image to the reviewed YOLO checkpoint.
+- X-ray results display an annotated preview, every detected box, pixel coordinates and confidence, with warnings that boxes are model predictions, no detection does not mean normal, and the model cannot verify anatomy or age. No diagnostic, bone-specific, or fracture-subtype claims were added.
+- Added optional paired upload. The report explanation and X-ray model result are processed and displayed separately; differing findings trigger clinician-review language and the UI states that the results do not confirm one another.
+- The four de-identified held-out fixtures in `C:\Users\HP\Downloads\clarifymed_real_wrist_fixtures\images` were submitted to the real Python `/analyze` upload route with the reviewed checkpoint. Two returned no qualifying region; two returned 4 and 1 predicted regions. Responses included hashes matching each exact uploaded file. The fixtures remain outside the repository and are not production assets.
+- A fifth held-out dataset image was not available in the workspace or the local fixture bundle, so the requested additional non-fixture real-image inference remains unverified. Do not substitute a synthetic image or one of the four fixtures for that requirement.
+- Verification: all 29 Node tests, 24 Python ML-service tests, and 18 Python training/ML tests passed. The frontend production build passed. `git diff --check` passed. A production-source scan found no fixture filenames, fixture matching, the removed sample result, or “Ready for demo detection” text.
+
+## Scope decision (22 September)
+
+- Replaced the FracAtlas/MobileNet classification direction with a YOLO bounding-box detector contract for **GRAZPEDWRI-DX pediatric wrist X-rays only**. This is the only supported X-ray claim.
+- The UI accepts JPG/PNG pediatric wrist X-rays, displays a colored model-predicted region and its confidence when a compatible detector is installed, and uses a safe no-detection result that explicitly does not call the X-ray normal.
+- Result language now states that it is research/demo output, not a medical diagnosis. It does not name a bone, fracture subtype, or any precise anatomical location.
+- No trained or evaluated YOLO detector artifact is installed. The inference path fails closed until one is available; do not enable a clinical or general-X-ray claim.
+
+## Completion pass (19 September)
+
+- Preserved the existing uncommitted application/configuration changes from 18 September. The UI currently marks X-ray analysis as Coming soon and uses text-only report locations.
+- Fixed a real offline report failure: newly added source evidence used `Evidence` without importing it. Added regression coverage that executes the report pipeline and checks finding/anatomy/measurement evidence against original source spans.
+- Tightened the existing assertion heuristic with word boundaries and contrast-clause boundaries, and removed `chronic` as a history-only cue. This remains a limited rule-based heuristic, not a validated assertion model.
+- Verification before fixes: all 53 existing tests passed (25 Node, 10 Python service, 18 training/ML), plus the production frontend build. After fixes, all nine relevant core/pipeline tests passed, including three new regression tests. `git diff --check` passed.
+- Real cached OCR/NER/classifier smoke checks passed with synthetic inputs and `HF_HUB_OFFLINE=1`: PDF 21.109 seconds and scanned PNG 15.386 seconds, four entities each. Evidence: `tmp/offline-smoke-20260919.json`. Network access was not globally disabled; this is execution verification, not representative clinical evaluation.
+- Reconfirmed no Docker CLI on PATH or at the standard Docker Desktop executable path, no connected browser surfaces, and no `model.pt` under `ml/artifacts`.
+- User does not know the failed Colab traceback or completed run location. Do not assume a training run completed; keep X-ray unavailable until evaluated weights exist.
+
+### Remaining work after this pass
+
+1. Recover or rerun the prepared FracAtlas Colab notebook with a clean dataset and GPU; review its complete evaluation/provenance before installing weights. Then validate inference and Grad-CAM and enable the UI as appropriate.
+2. Install/start WSL and Docker Desktop with the required administrator access, then run `deploy/verify-local.ps1`. Local Docker verification remains the recorded preference before cloud deployment.
+3. Connect a browser and complete report extraction/explanation, account/history, keyboard, responsive-layout, and print checks.
+4. Complete representative model evaluation, email verification/password recovery, and the remaining documented release gates. A cloud destination is not configured.
+
+This section takes precedence over earlier historical snapshots.
 
 ## Completion pass (16 September)
 

@@ -13,12 +13,14 @@ def detect_type(data: bytes) -> str | None:
     return None
 
 
-def validate_upload(data: bytes, declared_type: str) -> str:
+def validate_upload(data: bytes, declared_type: str, *, xray: bool = False) -> str:
     if not data:
         raise ValueError("The uploaded file is empty.")
     if len(data) > MAX_FILE_BYTES:
         raise ValueError("The uploaded file exceeds 20 MB.")
     detected = detect_type(data)
+    if xray and detected not in {"image/jpeg", "image/png"}:
+        raise ValueError("X-ray analysis accepts JPG, JPEG, or PNG images only.")
     if detected is None or detected != declared_type:
         raise ValueError("File contents do not match a supported PDF, JPG, or PNG file.")
     return detected

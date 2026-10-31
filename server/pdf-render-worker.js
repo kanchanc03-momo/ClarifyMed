@@ -60,7 +60,7 @@ try {
 } catch (error) {
   let message = 'This PDF is damaged or unreadable. Try exporting it again or upload clear page images.';
   if (error.name === 'PasswordException') message = 'This PDF is password-protected. Upload a copy without password protection.';
-  if (error.message?.startsWith('PDF_PAGE_LIMIT:')) message = `PDF reports can contain up to ${workerData.maxPages} pages with the selected Groq model. Split this report into smaller PDFs and upload each separately.`;
+  if (error.message?.startsWith('PDF_PAGE_LIMIT:')) message = `PDF reports can contain up to ${workerData.maxPages} pages. Split a longer report into smaller PDFs and upload each separately.`;
   if (error.message === 'PDF_IMAGE_LIMIT') message = 'The PDF page images are too large to analyze together. Split the report into smaller PDFs.';
   parentPort.postMessage({ error: message });
 } finally {

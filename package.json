@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently -k \"npm:dev:web\" \"npm:dev:api\"",
     "dev:web": "vite",
-    "dev:api": "node --watch server/index.js",
+    "dev:api": "node server/index.js",
     "dev:ml": "python -m uvicorn ml_service.app:app --reload --port 8000",
     "dev:offline": "concurrently -k \"npm:dev:web\" \"npm:dev:api\" \"npm:dev:ml\"",
     "start": "node server/index.js",

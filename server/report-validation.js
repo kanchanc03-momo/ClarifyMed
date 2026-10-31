@@ -1,4 +1,4 @@
-const DOCUMENT_TYPES = new Set(['text_report', 'scanned_report', 'xray', 'unknown']);
+const DOCUMENT_TYPES = new Set(['text_report', 'scanned_report', 'xray', 'retinopathy', 'unknown']);
 const FOLLOW_UP_LEVELS = new Set(['routine', 'monitor', 'prompt']);
 const TEXT_LIMITS = {
   title: 300,

@@ -4,7 +4,7 @@ import re
 
 from .document import extract_pdf, extract_report_image
 from .ner import extract_entities
-from .schemas import TextAnalysis
+from .schemas import Evidence, TextAnalysis
 from .severity import classify
 from .settings import NER_MODEL
 from .simplification import simplify
@@ -28,10 +28,17 @@ def analyze_text_report(data: bytes, media_type: str) -> TextAnalysis:
     location = anatomy_entity.text if anatomy_entity else "Not reliably extracted"
     measurement_text = measurement.group() if measurement else "Not specified"
     label = {"routine": "Routine discussion", "monitor": "Review suggested", "prompt": "Prompt review wording found"}[level]
-    summary = (
-        f"The report mentions {plain or finding}. The reported location is {location}. "
-        "This wording should be reviewed with the clinician who ordered the test."
-    )
+    assertion = finding_entity.assertion if finding_entity else "present"
+    finding_label = plain or finding
+    if assertion == "absent":
+        summary = f"The report states that no {finding_label.lower()} was identified. The reported location is {location}."
+    elif assertion == "possible":
+        summary = f"The report describes a possible {finding_label.lower()} at {location}."
+    elif assertion == "historical":
+        summary = f"The report refers to a history of {finding_label.lower()} at {location}."
+    else:
+        summary = f"The report mentions {finding_label} at {location}."
+    summary += " This wording should be reviewed with the clinician who ordered the test."
     limitations = "Automated OCR and entity extraction can miss or misread details. Verify this explanation against the original report."
     if severity_source == "explicit_wording_fallback":
         warnings.append("The trained follow-up classifier artifact is unavailable; only explicit wording rules were used.")
@@ -48,6 +55,13 @@ def analyze_text_report(data: bytes, media_type: str) -> TextAnalysis:
             "Does the original report recommend follow-up, and when?",
             "Are there symptoms or changes that should make me contact you sooner?",
         ], limitations=limitations, extracted_text=text, extraction_method=method,
-        entities=entities, evidence=evidence,
+        entities=entities, evidence=evidence + [
+            *([Evidence(finding_entity.text, finding_entity.start, finding_entity.end, "report_text")]
+              if finding_entity else []),
+            *([Evidence(anatomy_entity.text, anatomy_entity.start, anatomy_entity.end, "report_text")]
+              if anatomy_entity else []),
+            *([Evidence(measurement.group(), measurement.start(), measurement.end(), "report_text")]
+              if measurement else []),
+        ],
         model_versions={"ner": NER_MODEL, "severity": severity_source}, warnings=warnings,
     )

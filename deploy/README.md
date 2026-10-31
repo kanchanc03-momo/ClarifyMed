@@ -19,7 +19,7 @@ The service reports artifact readiness through the private ML health endpoint. M
 
 ## Reproducible demo start
 
-Install Node 24+ and Python with `ml_service/requirements.txt`. Run `npm ci`, then `npm run build`. Copy `.env.example` to `.env` and choose the report provider. Run `npm run dev:ml` alongside `npm run dev`. X-rays always go to the private Python service, even when reports use Groq. Missing X-ray weights produce an explicit error.
+Install Node 24+ and Python with `ml_service/requirements.txt`. Run `npm ci`, then `npm run build`. Copy `.env.example` to `.env` and choose the report provider. Run `npm run dev:ml` alongside `npm run dev`. X-rays always go to the private Python service, even when reports use Groq. The current UI marks X-ray analysis as Coming soon. The API rejects X-ray analysis without evaluated weights; enable the UI only after the model handoff and end-to-end checks.
 
 For Docker, run `docker compose up --build -d` from the project root. The included Compose file binds port 7860 to loopback, persists SQLite history and model caches in named volumes, and mounts trained artifacts read-only. The container uses secure session cookies; expose a deployed demo through an HTTPS reverse proxy. Do not delete the history volume when restarting. Back up the SQLite database with SQLite's backup API or stop the service before copying the whole data volume.
 
@@ -55,7 +55,7 @@ docker compose logs --tail 100
 
 Inspect the ML readiness flags and complete an actual synthetic report upload. Once evaluated X-ray weights are installed, check an approved X-ray upload and Grad-CAM output. Through the HTTPS endpoint, verify registration, login, saving/reopening/deleting a synthetic explanation, and logout. Restart with `docker compose restart`, sign in again, and verify that a saved synthetic explanation persists. Never use `down --volumes` when preserving history.
 
-Browser acceptance checks remain pending: report text extraction and explanation; missing-weight X-ray error and subsequently trained-model results; account/history interactions; help and delete dialogs using keyboard navigation; desktop and narrow-screen layout; and print output. API tests do not replace these browser checks.
+Browser acceptance checks remain pending: report text extraction and explanation; disabled Coming soon X-ray option and, after model handoff, trained-model results; account/history interactions; help and delete dialogs using keyboard navigation; desktop and narrow-screen layout; and print output. API tests do not replace these browser checks.
 
 ### Windows local verification
 

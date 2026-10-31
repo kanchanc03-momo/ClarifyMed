@@ -64,8 +64,15 @@ test('supports scanned PDFs with embedded page images', async () => {
 
 test('rejects corrupt and over-limit PDFs without silently dropping pages', async () => {
   await assert.rejects(renderPdfPages(Buffer.from('%PDF-broken')), PdfInputError);
-  await assert.rejects(renderPdfPages(fixture(6)), /up to 5 pages/);
+  await assert.rejects(renderPdfPages(fixture(51)), /up to 50 pages/);
   await assert.rejects(renderPdfPages(fixture(4), { maxPages: 3 }), /up to 3 pages/);
+});
+
+test('extracts all pages of a typical 21-page blood report', async () => {
+  const content = await buildReportContent({ buffer: fixture(21, false, true), mimetype: 'application/pdf', originalname: 'blood-report.pdf' }, 'groq');
+  assert.equal(content.length, 1);
+  assert.match(content[0].text, /Page 1 of 21/);
+  assert.match(content[0].text, /Page 21 of 21/);
 });
 
 test('stops PDF processing when its timeout expires', async () => {
@@ -73,7 +80,7 @@ test('stops PDF processing when its timeout expires', async () => {
 });
 
 test('builds one Groq report request containing every PDF page', async () => {
-  const content = await buildReportContent({ buffer: fixture(), mimetype: 'application/pdf', originalname: 'report.pdf' }, 'groq', 'qwen/qwen3.6-27b');
+  const content = await buildReportContent({ buffer: fixture(), mimetype: 'application/pdf', originalname: 'report.pdf' }, 'groq', 'qwen/qwen3.8-27b');
   assert.equal(content.filter(item => item.type === 'input_image').length, 2);
   assert.equal(content.filter(item => item.type === 'input_file').length, 0);
   assert.match(content[0].text, /one combined explanation/);
@@ -100,7 +107,7 @@ test('PDF upload API sends page images to Groq and returns the combined report',
   const directory = await mkdtemp(path.join(tmpdir(), 'clarifymed-pdf-test-'));
   process.env.ANALYSIS_PROVIDER = 'groq';
   process.env.GROQ_API_KEY = 'synthetic-test-key';
-  process.env.GROQ_MODEL = 'qwen/qwen3.6-27b';
+  process.env.GROQ_MODEL = 'qwen/qwen3.8-27b';
   process.env.DATA_DIR = directory;
   const explanation = {
     documentType: 'scanned_report', title: 'Synthetic report', summary: 'Both pages reviewed.',
@@ -137,10 +144,11 @@ test('PDF upload API sends page images to Groq and returns the combined report',
     assert.equal(result.name, 'medical-report.pdf');
     assert.equal(result.summary, explanation.summary);
     assert.match(sent.messages[0].content, /"required":\["documentType","title","summary"/);
+    assert.match(sent.messages[0].content, /very simple, calm everyday language/);
     assert.match(sent.messages[0].content, /"minItems":3,"maxItems":5/);
     assert.equal(sent.max_completion_tokens, 900);
     assert.equal(sent.reasoning_effort, 'none');
-    assert.equal(sent.messages[1].content.filter(item => item.type === 'image_url').length, 2);
+    assert.match(sent.messages[1].content[0].text, /Hemoglobin 13\.5 g\/dL/);
     sent = undefined;
     const invalid = await upload(Buffer.from('%PDF-broken'));
     assert.equal(invalid.status, 422);

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import {
   ArrowLeft, ArrowRight, CalendarDays, Check, ChevronRight, CircleHelp,
-  FileImage, FileText, HeartPulse, History, Home, LockKeyhole, LogOut, Menu,
+  Eye, FileImage, FileText, HeartPulse, History, Home, LockKeyhole, LogOut, Menu,
   MessageCircleQuestion, Plus, Printer, ShieldCheck, Sparkles, Trash2, Upload, UserRound, X
 } from 'lucide-react';
 import './styles.css';
@@ -10,17 +10,30 @@ import './live.css';
 import './auth.css';
 import {
   analyzeReport, extractReportText, deleteReport, getCurrentUser, getReport, getReports,
-  login, logout, register, saveReport, validateReport
+  login, logout, register, saveReport, validateReport, validateXray, validateRetinopathy
 } from './api';
 import { mapAnatomy } from './anatomy';
+import { xrayExplanation, reportDisagreesWithXray, DISAGREEMENT_EXPLANATION } from './xray-result';
 
-const demoReport = {
-  name: 'Chest X-ray Report.pdf', date: '13 Aug 2026', type: 'Radiology report', status: 'Review suggested',
-  title: 'Small opacity in the lower right lung', location: 'Right lower lung', measurement: '1.2 cm',
-  summary: 'Your report describes a small, rounded area in the lower part of your right lung. This type of finding is sometimes caused by an old infection or harmless tissue change. The report recommends comparing it with any older scans or discussing whether a follow-up image is needed.',
-  context: 'A lung opacity is an area that appears lighter than the surrounding lung on an X-ray. It is a description of what the image looks like—not a diagnosis. Many opacities have non-serious causes, and comparison with an earlier image often provides useful context.',
-  questions: ['Do you have an older chest X-ray we can compare this with?', 'Would you recommend another scan, and if so, when?', 'Are there any symptoms I should watch for?']
-};
+class AppErrorBoundary extends React.Component {
+  state = { error: null };
+
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+
+  render() {
+    if (!this.state.error) return this.props.children;
+    return (
+      <main style={{ maxWidth: '680px', margin: '80px auto', padding: '24px', color: '#213735', fontFamily: 'sans-serif' }}>
+        <h1>ClarifyMed could not display this page</h1>
+        <p>Please refresh and try again. Your uploaded file was not saved.</p>
+        <pre style={{ whiteSpace: 'pre-wrap', color: '#8b3a2f', background: '#fff4e5', padding: '12px', borderRadius: '8px' }}>{String(this.state.error?.message || this.state.error || 'Unknown display error')}</pre>
+        <button className="primary" onClick={() => window.location.reload()}>Refresh ClarifyMed</button>
+      </main>
+    );
+  }
+}
 
 function Logo() {
   return <div className="logo"><span className="logo-mark"><HeartPulse size={20}/></span><span>Clarify<span>Med</span></span></div>;
@@ -184,7 +197,7 @@ function AuthPage({ onAuthenticated, goHome }) {
   );
 }
 
-function HomePage({ onResult }) {
+function HomePage({ onResult, onPairedResult }) {
   const [file, setFile] = useState(null);
   const [inputType, setInputType] = useState('report');
   const [drag, setDrag] = useState(false);
@@ -192,12 +205,20 @@ function HomePage({ onResult }) {
   const [error, setError] = useState('');
   const [extraction, setExtraction] = useState(null);
   const [extracting, setExtracting] = useState(false);
+  const [wristConfirmed, setWristConfirmed] = useState(false);
+  const [retinaConfirmed, setRetinaConfirmed] = useState(false);
+  const [pairedFile, setPairedFile] = useState(null);
+  const [pairedWristConfirmed, setPairedWristConfirmed] = useState(false);
+  const [pairedRetinaConfirmed, setPairedRetinaConfirmed] = useState(false);
   const busy = loading || extracting;
 
   const choose = (f) => {
     if (busy) return;
     setExtraction(null);
-    const issue = validateReport(f) || (inputType === 'xray' && f?.type === 'application/pdf' ? 'X-ray analysis requires one JPG or PNG image.' : '');
+    let issue = null;
+    if (inputType === 'xray') issue = validateXray(f);
+    else if (inputType === 'retinopathy') issue = validateRetinopathy(f);
+    else issue = validateReport(f);
     setError(issue || '');
     setFile(issue ? null : f);
   };
@@ -206,6 +227,11 @@ function HomePage({ onResult }) {
     if (busy) return;
     setExtraction(null);
     setInputType(value);
+    setWristConfirmed(false);
+    setRetinaConfirmed(false);
+    setPairedFile(null);
+    setPairedWristConfirmed(false);
+    setPairedRetinaConfirmed(false);
     setFile(null);
     setError('');
   };
@@ -214,7 +240,31 @@ function HomePage({ onResult }) {
     setLoading(true);
     setError('');
     try {
-      onResult(await analyzeReport(file, inputType));
+      const confirmed = inputType === 'retinopathy' ? retinaConfirmed : wristConfirmed;
+      onResult(await analyzeReport(file, inputType, confirmed));
+    } catch (issue) {
+      setError(issue.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const analyzePair = async () => {
+    if (!file || !pairedFile) return;
+    setLoading(true);
+    setError('');
+    try {
+      const isReportFirst = inputType === 'report';
+      const reportFile = isReportFirst ? file : pairedFile;
+      const imageFile = isReportFirst ? pairedFile : file;
+      const imageType = isReportFirst ? (pairedRetinaConfirmed ? 'retinopathy' : 'xray') : inputType;
+      const confirmed = isReportFirst ? (imageType === 'retinopathy' ? pairedRetinaConfirmed : pairedWristConfirmed) : (inputType === 'retinopathy' ? retinaConfirmed : wristConfirmed);
+
+      const [reportResult, imageResult] = await Promise.all([
+        analyzeReport(reportFile, 'report'),
+        analyzeReport(imageFile, imageType, confirmed),
+      ]);
+      onPairedResult({ report: reportResult, xray: imageResult });
     } catch (issue) {
       setError(issue.message);
     } finally {
@@ -240,7 +290,7 @@ function HomePage({ onResult }) {
       <section className="hero">
         <div className="eyebrow"><Sparkles size={15}/> Medical language, made human</div>
         <h1>Your medical report.<br/><em>Clearly explained.</em></h1>
-        <p>Upload a report or X-ray and get a calm, plain-language explanation—so you can feel informed before speaking with your doctor.</p>
+        <p>Upload a medical report or imaging scan and get a calm, plain-language explanation—so you can feel informed before speaking with your doctor.</p>
         <div className="trust-row">
           <span><ShieldCheck/> Your files stay private</span>
           <span><Check/> Clear, careful language</span>
@@ -249,45 +299,109 @@ function HomePage({ onResult }) {
       </section>
       <section className="upload-wrap">
         <div className="upload-card">
-          <div className="step-label"><span>1</span> Upload your report</div>
+          <div className="step-label"><span>1</span> Choose an analysis mode</div>
           <div className="input-type" role="group" aria-label="Choose analysis type">
-            <button className={inputType === 'report' ? 'selected' : ''} onClick={() => changeType('report')}><FileText/> Medical report</button>
-            <button className={inputType === 'xray' ? 'selected' : ''} onClick={() => changeType('xray')}><FileImage/> Musculoskeletal X-ray</button>
+            <button className={inputType === 'report' ? 'selected' : ''} onClick={() => changeType('report')}><FileText/> Explain a report</button>
+            <button className={inputType === 'retinopathy' ? 'selected' : ''} onClick={() => changeType('retinopathy')}><Eye/> Diabetic retinopathy screening</button>
+            <button className={inputType === 'xray' ? 'selected' : ''} onClick={() => changeType('xray')}><FileImage/> Pediatric wrist X-ray</button>
           </div>
           {!file ? (
             <label className={`dropzone ${drag ? 'drag' : ''}`} onDragOver={e => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={e => { e.preventDefault(); setDrag(false); choose(e.dataTransfer.files[0]); }}>
-              <input type="file" accept={inputType === 'xray' ? '.png,.jpg,.jpeg' : '.pdf,.png,.jpg,.jpeg'} onChange={e => choose(e.target.files[0])}/>
+              <input type="file" accept={inputType === 'report' ? '.pdf,.png,.jpg,.jpeg' : '.png,.jpg,.jpeg'} onChange={e => choose(e.target.files[0])}/>
               <div className="upload-icon"><Upload/></div>
-              <h3>Drop your report here</h3>
+              <h3>
+                {inputType === 'xray' ? 'Drop a pediatric wrist X-ray here' : inputType === 'retinopathy' ? 'Drop a retinal fundus photograph here' : 'Drop a medical report here'}
+              </h3>
               <p>or click to browse your files</p>
-              <div className="formats"><span><FileText/> PDF report</span><span><FileImage/> Scan or photo</span><span><FileImage/> X-ray image</span></div>
-              <small>PDF, JPG or PNG · Maximum 20 MB</small>
+              <div className="formats">
+                {inputType === 'xray' ? (
+                  <><span><FileImage/> JPG or PNG only</span><span><ShieldCheck/> Pediatric wrist only</span></>
+                ) : inputType === 'retinopathy' ? (
+                  <><span><Eye/> JPG or PNG fundus scan</span><span><ShieldCheck/> Color retina image</span></>
+                ) : (
+                  <><span><FileText/> PDF report</span><span><FileImage/> Scan or photo</span></>
+                )}
+              </div>
+              <small>
+                {inputType === 'report' ? 'PDF, JPG or PNG · Maximum 20 MB · PDFs up to 50 pages' : 'JPG or PNG · Maximum 20 MB'}
+              </small>
             </label>
           ) : (
             <div className="selected-file">
-              <div className="file-icon"><FileText/></div>
+              <div className="file-icon">{inputType === 'retinopathy' ? <Eye/> : <FileText/>}</div>
               <div>
                 <strong>{file.name}</strong>
-                <span>{(file.size / 1024 / 1024).toFixed(2)} MB · Ready to explain</span>
+                <span>{(file.size / 1024 / 1024).toFixed(2)} MB · {inputType === 'retinopathy' ? 'Ready for retinal screening' : inputType === 'xray' ? 'Ready for model analysis' : 'Ready for report explanation'}</span>
               </div>
               <button disabled={busy} onClick={() => { setFile(null); setExtraction(null); setError(''); }} aria-label="Remove"><X/></button>
             </div>
           )}
+          {inputType === 'xray' && <label className="xray-scope-confirm"><input type="checkbox" checked={wristConfirmed} onChange={e => setWristConfirmed(e.target.checked)}/> I confirm this is a pediatric wrist X-ray. Other X-ray types and adult images are unsupported.</label>}
+          {inputType === 'retinopathy' && <label className="xray-scope-confirm"><input type="checkbox" checked={retinaConfirmed} onChange={e => setRetinaConfirmed(e.target.checked)}/> I confirm this is a color retinal fundus image.</label>}
           {error && <div className="upload-error" role="alert">{error}</div>}
           {inputType === 'report' && <button className="primary extract-button" disabled={!file || busy} onClick={extract}>
             {extracting ? <><span className="spinner"/> Extracting report text...</> : <><FileText size={18}/> Extract text</>}
           </button>}
-          <div role="status" aria-live="polite" className="extraction-status">{extracting ? 'Reading your report. Scanned pages may take longer.' : extraction ? `Text extracted from ${extraction.pageCount} page${extraction.pageCount === 1 ? '' : 's'}.` : ''}</div>
+          <div role="status" aria-live="polite" className="extraction-status">{extracting ? 'Reading your report. Large scanned reports may take a few minutes.' : extraction ? `Text extracted from ${extraction.pageCount || 1} page${(extraction.pageCount || 1) === 1 ? '' : 's'}.` : ''}</div>
           {extraction && <section className="extracted-text-panel" aria-labelledby="extracted-text-title">
             <h3 id="extracted-text-title">Extracted report text</h3>
             <p>{extraction.extractionMethod === 'pdf_text' ? 'Read directly from your PDF.' : 'Transcribed from your report image.'} This preview is not saved to report history.</p>
-            {extraction.warnings.map((warning, index) => <p className="extraction-warning" key={index}>{warning}</p>)}
-            <textarea aria-label="Extracted report text" readOnly value={extraction.extractedText} rows={12}/>
+            {(Array.isArray(extraction.warnings) ? extraction.warnings : []).map((warning, index) => <p className="extraction-warning" key={index}>{warning}</p>)}
+            <textarea aria-label="Extracted report text" readOnly value={typeof extraction.extractedText === 'string' ? extraction.extractedText : ''} rows={12}/>
           </section>}
-          <button className="primary" disabled={!file || busy} onClick={analyze}>
-            {loading ? <><span className="spinner"/> Reading your report…</> : <>Explain my report <ArrowRight size={18}/></>}
-          </button>
-          <p className="consent"><ShieldCheck size={15}/> Your original upload is processed for this request and is not deliberately saved by ClarifyMed.</p>
+          <div className="analysis-actions">
+            <button className="primary" disabled={!file || busy || (inputType === 'xray' && !wristConfirmed) || (inputType === 'retinopathy' && !retinaConfirmed)} onClick={analyze}>
+              {loading ? (
+                <><span className="spinner"/> {inputType === 'xray' ? 'Checking the wrist X-ray…' : inputType === 'retinopathy' ? 'Screening retinal fundus photo…' : 'Reading your report…'}</>
+              ) : (
+                <>{inputType === 'xray' ? 'Analyze wrist X-ray' : inputType === 'retinopathy' ? 'Screen retinal image' : 'Explain my report'} <ArrowRight size={18}/></>
+              )}
+            </button>
+            {inputType === 'report' ? (
+              <label className="secondary paired-file-button"><FileImage size={18}/> Add scan / X-ray image
+                <input type="file" disabled={busy} accept=".png,.jpg,.jpeg" onChange={event => {
+                  const nextFile = event.target.files?.[0] || null;
+                  const issue = validateXray(nextFile);
+                  setError(issue || ''); setPairedFile(issue ? null : nextFile); setPairedWristConfirmed(false); setPairedRetinaConfirmed(false);
+                }}/>
+              </label>
+            ) : (
+              <label className="secondary paired-file-button"><FileText size={18}/> Add clinical report
+                <input type="file" disabled={busy} accept=".pdf,.png,.jpg,.jpeg" onChange={event => {
+                  const nextFile = event.target.files?.[0] || null;
+                  const issue = validateReport(nextFile);
+                  setError(issue || ''); setPairedFile(issue ? null : nextFile);
+                }}/>
+              </label>
+            )}
+          </div>
+          {pairedFile && <div className="paired-selection"><span>{pairedFile.name} · {(pairedFile.size / 1024 / 1024).toFixed(2)} MB</span><button type="button" disabled={busy} onClick={() => { setPairedFile(null); setPairedWristConfirmed(false); setPairedRetinaConfirmed(false); }}>Remove</button></div>}
+          {pairedFile && inputType === 'report' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px' }}>
+              <label className="xray-scope-confirm">
+                <input type="checkbox" checked={pairedWristConfirmed} onChange={event => { setPairedWristConfirmed(event.target.checked); if (event.target.checked) setPairedRetinaConfirmed(false); }}/> I confirm the additional image is a pediatric wrist X-ray.
+              </label>
+              <label className="xray-scope-confirm">
+                <input type="checkbox" checked={pairedRetinaConfirmed} onChange={event => { setPairedRetinaConfirmed(event.target.checked); if (event.target.checked) setPairedWristConfirmed(false); }}/> I confirm the additional image is a retinal fundus scan.
+              </label>
+            </div>
+          )}
+          {pairedFile && (
+            <button
+              className="secondary"
+              disabled={
+                !file || busy || (
+                  inputType === 'report'
+                    ? (!pairedWristConfirmed && !pairedRetinaConfirmed)
+                    : (inputType === 'retinopathy' ? !retinaConfirmed : !wristConfirmed)
+                )
+              }
+              onClick={analyzePair}
+            >
+              Analyze report + image together
+            </button>
+          )}
+          <p className="consent"><ShieldCheck size={15}/> {inputType === 'xray' ? 'Pediatric wrist X-rays only. This research/demo result is not a diagnosis.' : inputType === 'retinopathy' ? 'Diabetic retinopathy screening aid. Consult an eye care professional for medical diagnosis.' : 'Your original upload is processed for this request and is not deliberately saved by ClarifyMed.'}</p>
         </div>
         <aside className="expect">
           <span className="step-label"><span>2</span> Get a clear explanation</span>
@@ -369,24 +483,165 @@ function LocationVisual({ location }) {
       )}
       <span className="section-kicker">Location described in report</span>
       <strong>{location || 'Not specified'}</strong>
-      <small>{mapped ? 'Reference diagram based on the extracted location term—not exact model localization.' : 'No supported diagram location could be mapped reliably.'}</small>
+      <small>{mapped ? `Approximate reference-body location: ${mapped.label}. This marker is derived from the report text, not from image analysis.` : 'Exact image localization is not available from report text alone. Use the location wording above and review the original report with your clinician.'}</small>
     </div>
   );
 }
 
 function ResultVisual({ report }) {
-  if (report.heatmapDataUrl) {
+  if (report.annotatedImageDataUrl) {
+    const isRetina = report.documentType === 'retinopathy';
+    if (isRetina) {
+      const isHealthy = report.predictedGrade === 0 || report.followUpLevel === 'routine';
+      return (
+        <div className="body-visual heatmap" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px' }}>
+          {/* 1. Original Image */}
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#1e293b', display: 'block', marginBottom: '6px' }}>
+              📷 1. Original Retinal Photo
+            </span>
+            <img
+              src={report.originalImageDataUrl || report.annotatedImageDataUrl}
+              alt="Original Retinal Fundus"
+              style={{ width: 'min(100%, 260px)', borderRadius: '10px', border: '1px solid #e2e8f0' }}
+            />
+          </div>
+
+          {/* 2. Heatmap Shown Separately Below */}
+          <div style={{
+            textAlign: 'center',
+            background: isHealthy ? '#f0fdf4' : '#fffbeb',
+            border: isHealthy ? '2px solid #bbf7d0' : '2px solid #fed7aa',
+            borderRadius: '12px',
+            padding: '12px',
+          }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: isHealthy ? '#15803d' : '#c2410c', display: 'block', marginBottom: '6px' }}>
+              {isHealthy ? '🔍 2. AI Attention Map (Normal Landmarks)' : '🔥 2. AI Attention Heatmap (Grad-CAM)'}
+            </span>
+            <img
+              src={report.annotatedImageDataUrl}
+              alt="Grad-CAM Heatmap Overlay"
+              style={{ width: 'min(100%, 260px)', borderRadius: '10px' }}
+            />
+            <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '0.72rem', fontWeight: 600, color: '#334155' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                <span style={{ width: '9px', height: '9px', background: '#2563eb', borderRadius: '2px' }}></span> Low
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                <span style={{ width: '9px', height: '9px', background: '#eab308', borderRadius: '2px' }}></span> Moderate
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                <span style={{ width: '9px', height: '9px', background: '#dc2626', borderRadius: '2px' }}></span> High Focus
+              </span>
+            </div>
+            <small style={{ display: 'block', marginTop: '6px', color: isHealthy ? '#166534' : '#9a3412', fontSize: '0.75rem', lineHeight: '1.35' }}>
+              {isHealthy
+                ? 'Healthy verification: The AI focused on key reference landmarks (the bright optic disc and clean vessel roots) to confirm the retina is healthy and free of leaks.'
+                : 'Glowing red and yellow areas highlight where the AI model detected microvascular leaks or vessel stress.'}
+            </small>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="body-visual heatmap">
-        <img src={report.heatmapDataUrl} alt="Grad-CAM overlay showing regions that influenced the prototype model"/>
-        <small>Grad-CAM model-influence overlay—not a confirmed abnormality location</small>
+        <img
+          src={report.annotatedImageDataUrl}
+          alt={
+            report.detections?.length
+              ? 'Pediatric wrist X-ray with model-predicted regions outlined'
+              : 'Pediatric wrist X-ray preview with no model-predicted region outlined'
+          }
+        />
+        <small>
+          {report.detections?.length
+            ? 'Highlighted boxes are model predictions, not confirmed fracture locations.'
+            : 'No region was highlighted above the reviewed threshold.'}
+        </small>
       </div>
     );
   }
   return report.id ? <LocationVisual location={report.location}/> : <BodyVisual/>;
 }
 
-function ResultPage({ goHome, report = demoReport, onDeleteReport }) {
+function XrayDetections({ report }) {
+  if (report.documentType !== 'xray') return null;
+  const detections = Array.isArray(report.detections) ? report.detections : [];
+  return <section className="card xray-detections">
+    <span className="section-kicker">Model-predicted regions</span>
+    <p>Number of predicted regions: {detections.length}</p>
+    {detections.length ? detections.map((detection, index) => {
+      const box = detection.boundingBox || {};
+      const coords = [box.xMin, box.yMin, box.xMax, box.yMax];
+      return <div className="details" key={`${index}-${box.xMin}-${box.yMin}`}>
+        <div><small>Region {index + 1}</small><strong>Possible fracture-like region</strong></div>
+        <div><small>Model confidence</small><strong>{typeof detection.confidence === 'number' ? `${Math.round(detection.confidence * 100)}%` : 'Not available'}</strong></div>
+        <div><small>Preview pixel box</small><strong>{coords.every(Number.isFinite) ? `${box.xMin}, ${box.yMin} to ${box.xMax}, ${box.yMax}` : 'See annotated preview'}</strong></div>
+      </div>;
+    }) : null}
+    <p className="source-note">Boxes mark model predictions in the uploaded image; they do not confirm a fracture or precise anatomy.</p>
+  </section>;
+}
+
+function RetinopathyHeatmapSection({ report }) {
+  if (report.documentType !== 'retinopathy' || !report.annotatedImageDataUrl) return null;
+  const isHealthy = report.predictedGrade === 0 || report.followUpLevel === 'routine';
+  return (
+    <section className="card" style={{ marginTop: '16px' }}>
+      <span className="section-kicker">Visual AI Explanation</span>
+      <h3>{isHealthy ? 'AI Inspection of Healthy Landmarks (Grad-CAM)' : 'AI Attention Heatmap (Grad-CAM)'}</h3>
+      <p>
+        {isHealthy
+          ? 'In a healthy eye with no damage, the neural network uses Grad-CAM to highlight the natural anatomical landmarks (such as the bright optic disc and main blood vessel trunk) that it examined to verify normal retinal structure:'
+          : 'The neural network generates a gradient-weighted class activation map (Grad-CAM) showing which areas of the retina influenced its assessment:'}
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginTop: '14px' }}>
+        <div style={{ textAlign: 'center', background: '#f8fafc', padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+          <strong style={{ display: 'block', fontSize: '0.85rem', marginBottom: '8px', color: '#1e293b' }}>
+            📷 1. Original Retinal Photo
+          </strong>
+          <img
+            src={report.originalImageDataUrl || report.annotatedImageDataUrl}
+            alt="Original Retinal Photo"
+            style={{ width: '100%', maxHeight: '240px', objectFit: 'contain', borderRadius: '8px' }}
+          />
+          <small style={{ display: 'block', marginTop: '6px', color: '#64748b' }}>Original color fundus photography</small>
+        </div>
+        <div style={{
+          textAlign: 'center',
+          background: isHealthy ? '#f0fdf4' : '#fffbeb',
+          padding: '12px',
+          borderRadius: '12px',
+          border: isHealthy ? '2px solid #bbf7d0' : '2px solid #fed7aa',
+        }}>
+          <strong style={{ display: 'block', fontSize: '0.85rem', marginBottom: '8px', color: isHealthy ? '#15803d' : '#c2410c' }}>
+            {isHealthy ? '🔍 2. AI Normal Reference Map' : '🔥 2. AI Attention Heatmap'}
+          </strong>
+          <img
+            src={report.annotatedImageDataUrl}
+            alt="AI Attention Heatmap"
+            style={{ width: '100%', maxHeight: '240px', objectFit: 'contain', borderRadius: '8px' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '8px', fontSize: '0.72rem', fontWeight: 600 }}>
+            <span style={{ color: '#2563eb' }}>🔵 Low</span>
+            <span style={{ color: '#ca8a04' }}>🟡 Moderate</span>
+            <span style={{ color: '#dc2626' }}>🔴 High Focus</span>
+          </div>
+          <small style={{ display: 'block', marginTop: '6px', color: isHealthy ? '#166534' : '#9a3412' }}>
+            {isHealthy
+              ? 'Highlighted area marks the optic disc and healthy vessel origins that the AI verified to confirm no diabetic lesions.'
+              : 'Glowing zones highlight microvascular changes and leaking spots.'}
+          </small>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ResultPage({ goHome, report, onDeleteReport }) {
+  const questions = Array.isArray(report.questions) && report.questions.length > 0
+    ? report.questions
+    : ['What does this finding mean in the context of my health history?', 'Does the report recommend follow-up, and when?', 'Are there symptoms or changes that should make me contact you sooner?'];
   const [saveState, setSaveState] = useState(report.createdAt ? 'saved' : 'idle');
   const [saveError, setSaveError] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -431,8 +686,8 @@ function ResultPage({ goHome, report = demoReport, onDeleteReport }) {
       <button className="back" onClick={goHome}><ArrowLeft/> Back to upload</button>
       <div className="result-title">
         <div>
-          <span className="complete"><Check/> Explanation ready</span>
-          <h1>Here’s what your report says</h1>
+          <span className="complete"><Check/> {report.documentType === 'xray' ? 'X-ray model result ready' : 'Report explanation ready'}</span>
+          <h1>{report.documentType === 'xray' ? 'Pediatric wrist X-ray result' : 'Here’s what your report says'}</h1>
           <p>{report.name} · {report.date}</p>
         </div>
         <div style={{ display: 'flex', gap: '10px' }}>
@@ -450,42 +705,45 @@ function ResultPage({ goHome, report = demoReport, onDeleteReport }) {
       <div className="disclaimer">
         <ShieldCheck/>
         <div>
-          <strong>This is an explanation, not a diagnosis.</strong>
-          <span>Always discuss medical results and next steps with your healthcare professional.</span>
+          <strong>{report.documentType === 'xray' ? 'This research/demo result is not a diagnosis.' : 'This is an explanation, not a diagnosis.'}</strong>
+          <span>{report.documentType === 'xray' ? 'External dataset testing and clinician review are still required. A medical professional should review the original X-ray.' : 'Always discuss medical results and next steps with your healthcare professional.'}</span>
         </div>
       </div>
       <section className="summary-card">
         <div className="summary-copy">
           <span className="section-kicker">In plain language</span>
           <h2>{report.title}</h2>
-          <p>{report.summary}</p>
+          <p>{report.documentType === 'xray' ? xrayExplanation(report) : report.summary}</p>
         </div>
         <ResultVisual report={report}/>
       </section>
       <div className="result-grid">
         <div>
           <section className="card">
-            <span className="section-kicker">Key details from the report</span>
+            <span className="section-kicker">{report.documentType === 'xray' ? 'X-ray model details' : 'Key details from the report'}</span>
             <div className="details">
               <div><small>Finding</small><strong>{report.finding || report.title}</strong></div>
               <div><small>Location</small><strong>{report.location}</strong></div>
-              <div><small>Measurement</small><strong>{report.measurement}</strong></div>
+              <div><small>{report.documentType === 'xray' ? 'Confidence score' : 'Measurement'}</small><strong>{report.documentType === 'xray' && typeof report.fractureScore === 'number' ? `${Math.round(report.fractureScore * 100)}%` : report.measurement}</strong></div>
             </div>
           </section>
+          <XrayDetections report={report}/>
+          <RetinopathyHeatmapSection report={report}/>
           <section className="card context">
-            <span className="section-kicker">What this usually means</span>
-            <p>{report.context}</p>
+            <span className="section-kicker">{report.documentType === 'xray' ? 'What this X-ray result means' : 'What this usually means'}</span>
+            <p>{report.documentType === 'xray' ? 'The model only checks image patterns. A qualified clinician should interpret the original X-ray and any radiology report.' : report.context}</p>
+            {report.documentType === 'xray' && <p>A confidence score shows how strongly the research model matched an image pattern. It is not the chance that a fracture is present. The model cannot assess pain, symptoms, or treatment needs.</p>}
             <div className="source-note">
               <CircleHelp/> {report.limitations || 'This is general context. Your doctor can explain what it means for you specifically.'}
             </div>
           </section>
         </div>
         <div>
-          <Severity report={report}/>
+          {report.documentType !== 'xray' && <Severity report={report}/>}
           <section className="card questions">
             <span className="section-kicker">Questions for your doctor</span>
             <h3>You may want to ask:</h3>
-            {report.questions.map((q, i) => (
+            {questions.map((q, i) => (
               <div className="question" key={q}>
                 <span>{i + 1}</span>{q}
               </div>
@@ -498,7 +756,7 @@ function ResultPage({ goHome, report = demoReport, onDeleteReport }) {
         <div>
           <span className="section-kicker">Your next step</span>
           <h2>Talk this through with your doctor</h2>
-          <p>Bring this explanation and your original report. Your doctor can review your health history and decide whether any follow-up is needed.</p>
+          <p>{report.documentType === 'xray' ? 'Bring the original X-ray and any written radiology report. A clinician can explain the image alongside symptoms and decide whether follow-up is needed.' : 'Bring this explanation and your original report. Your doctor can review your health history and decide whether any follow-up is needed.'}</p>
           {saveError && <small role="alert" style={{ color: '#c0392b', display: 'block', marginTop: '6px' }}>{saveError}</small>}
         </div>
         <button className="primary" disabled={saveState !== 'idle'} onClick={save}>
@@ -512,6 +770,34 @@ function ResultPage({ goHome, report = demoReport, onDeleteReport }) {
   );
 }
 
+function PairedResultPage({ goHome, pair }) {
+  const report = pair.report;
+  const xray = pair.xray;
+  const different = reportDisagreesWithXray(report, xray);
+  return <div className="result-page">
+    <button className="back" onClick={goHome}><ArrowLeft/> Back to upload</button>
+    <div className="result-title"><div><span className="complete"><Check/> Separate results ready</span><h1>Report and X-ray results</h1></div></div>
+    <div className="disclaimer"><ShieldCheck/><div><strong>These outputs are independent and are not a diagnosis.</strong><span>The written report and research model do not confirm one another. A qualified clinician should review both original sources.</span></div></div>
+    {different && <div className="upload-error" role="status">{DISAGREEMENT_EXPLANATION}</div>}
+    <div className="result-grid paired-results">
+      <section className="card"><span className="section-kicker">Radiology report explanation</span><h2>{report.title}</h2><p>{report.summary}</p><p><strong>Finding:</strong> {report.finding || report.title}</p><p><strong>Anatomy:</strong> {report.location}</p><p><strong>Measurement:</strong> {report.measurement}</p><p>{report.limitations}</p><h3>Questions for your doctor</h3>{(report.questions || []).map(question => <p key={question}>• {question}</p>)}</section>
+      <section className="card"><span className="section-kicker">X-ray model result</span><h2>{xray.title}</h2><p>{xrayExplanation(xray)}</p><ResultVisual report={xray}/><h3>What this X-ray result means</h3><p>A confidence score describes the model's image-pattern match, not the chance that a fracture is present.</p><p>{xray.limitations}</p><XrayDetections report={xray}/><h3>Questions for your doctor</h3>{(xray.questions || []).map(question => <p key={question}>• {question}</p>)}</section>
+    </div>
+    <p className="bottom-disclaimer">The report explanation is based on extracted written text. The X-ray model result is based on the separately uploaded image. Differences require clinician review.</p>
+  </div>;
+}
+
+function savedReportType(value) {
+  if (typeof value !== 'string' || !value.trim()) return 'Medical report';
+  return value.replaceAll('_', ' ');
+}
+
+function savedReportDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Date unavailable';
+  return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium' }).format(date);
+}
+
 function HistoryPage({ open, openReport, onDeleteReport }) {
   const [reports, setReports] = useState([]);
   const [error, setError] = useState('');
@@ -519,7 +805,12 @@ function HistoryPage({ open, openReport, onDeleteReport }) {
   const [deleting, setDeleting] = useState(false);
 
   const loadReports = () => {
-    getReports().then(setReports).catch(issue => setError(issue.message));
+    getReports()
+      .then(result => {
+        const summaries = Array.isArray(result) ? result : [];
+        setReports(summaries.filter(item => item && typeof item === 'object'));
+      })
+      .catch(issue => setError(issue.message));
   };
 
   useEffect(() => {
@@ -564,10 +855,10 @@ function HistoryPage({ open, openReport, onDeleteReport }) {
           <div onClick={() => openReport(item.id)} style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, cursor: 'pointer' }}>
             <span className="file-icon"><FileText/></span>
             <div>
-              <strong>{item.name}</strong>
-              <span>{item.documentType.replaceAll('_', ' ')} · {new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium' }).format(new Date(item.createdAt))}</span>
+              <strong>{item.name || 'Untitled report'}</strong>
+              <span>{savedReportType(item.documentType)} · {savedReportDate(item.createdAt)}</span>
             </div>
-            <span className="status">{item.followUpLabel}</span>
+            <span className="status">{item.followUpLabel || 'Review suggested'}</span>
           </div>
           <div className="report-row-actions">
             <button
@@ -594,7 +885,8 @@ function HistoryPage({ open, openReport, onDeleteReport }) {
 
 function AuthenticatedApp() {
   const [page, setPage] = useState('home');
-  const [report, setReport] = useState(demoReport);
+  const [report, setReport] = useState(null);
+  const [pairedResult, setPairedResult] = useState(null);
   const [user, setUser] = useState(null);
   const [checked, setChecked] = useState(false);
   const [navigationError, setNavigationError] = useState('');
@@ -604,12 +896,21 @@ function AuthenticatedApp() {
     getCurrentUser().then(result => setUser(result.user)).catch(() => {}).finally(() => setChecked(true));
   }, []);
 
-  useEffect(() => window.scrollTo(0, 0), [page]);
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [page]);
 
   const showResult = value => {
     setNavigationError('');
+    setPairedResult(null);
     setReport(value);
     setPage('result');
+  };
+
+  const showPairedResult = value => {
+    setNavigationError('');
+    setPairedResult(value);
+    setPage('paired-result');
   };
 
   const openReport = async id => {
@@ -651,9 +952,11 @@ function AuthenticatedApp() {
       {howItWorksOpen && <HowItWorksModal onClose={() => setHowItWorksOpen(false)}/>}
       {navigationError && <div className="upload-error" role="alert">{navigationError}</div>}
       {page === 'home' ? (
-        <HomePage onResult={showResult}/>
+        <HomePage onResult={showResult} onPairedResult={showPairedResult}/>
       ) : page === 'result' ? (
         <ResultPage key={report.id} report={report} goHome={() => setPage('home')} onDeleteReport={handleDeleteReport}/>
+      ) : page === 'paired-result' ? (
+        <PairedResultPage pair={pairedResult} goHome={() => setPage('home')}/>
       ) : page === 'auth' || !user ? (
         <AuthPage onAuthenticated={value => { setUser(value); setPage('history'); }} goHome={() => setPage('home')}/>
       ) : (
@@ -663,4 +966,10 @@ function AuthenticatedApp() {
   );
 }
 
-createRoot(document.getElementById('root')).render(<AuthenticatedApp/>);
+const container = document.getElementById('root');
+let root = window.__clarifymed_root;
+if (!root) {
+  root = createRoot(container);
+  window.__clarifymed_root = root;
+}
+root.render(<AppErrorBoundary><AuthenticatedApp/></AppErrorBoundary>);

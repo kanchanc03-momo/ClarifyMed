@@ -8,12 +8,13 @@ services:
       NODE_ENV: production
       ANALYSIS_PROVIDER: ${ANALYSIS_PROVIDER:-local}
       GROQ_API_KEY: ${GROQ_API_KEY:-}
-      GROQ_MODEL: ${GROQ_MODEL:-qwen/qwen3.6-27b}
+      GROQ_MODEL: ${GROQ_MODEL:-qwen/qwen3.8-27b}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-5-mini}
       DATA_DIR: /app/data
       MODEL_CACHE_DIR: /home/node/.cache/clarifymed
-      XRAY_MODEL_PATH: /app/ml/artifacts/fracatlas-mobilenetv2/model.pt
+      XRAY_MODEL_PATH: /app/ml/artifacts/grazpedwri-yolo/model.pt
+      XRAY_EVALUATION_PATH: /app/ml/artifacts/grazpedwri-yolo/evaluation.json
     volumes:
       - history:/app/data
       - ./ml/artifacts:/app/ml/artifacts:ro

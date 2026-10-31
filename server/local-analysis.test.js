@@ -25,9 +25,11 @@ for (const provider of ['local', 'groq']) test(`forwards ${provider === 'local' 
     questions: ['What does this mean?', 'Is follow-up needed?', 'What should I watch for?'],
     limitations: 'Synthetic integration-test response.',
   };
-  let forwardedBody = '';
+  let forwardedBody = Buffer.alloc(0);
   const mlServer = http.createServer(async (request, response) => {
-    for await (const chunk of request) forwardedBody += chunk.toString();
+    const chunks = [];
+    for await (const chunk of request) chunks.push(chunk);
+    forwardedBody = Buffer.concat(chunks);
     response.writeHead(200, { 'Content-Type': 'application/json' });
     response.end(JSON.stringify(explanation));
   });
@@ -44,8 +46,10 @@ for (const provider of ['local', 'groq']) test(`forwards ${provider === 'local' 
 
   try {
     const form = new FormData();
-    form.append('report', new Blob([Buffer.from([0xff, 0xd8, 0xff, 0xd9])], { type: 'image/jpeg' }), 'report.jpg');
+    const uploadedBytes = Buffer.from([0xff, 0xd8, 0xff, 0xd9, 0x31, 0x32]);
+    form.append('report', new Blob([uploadedBytes], { type: 'image/jpeg' }), provider === 'local' ? 'arbitrary-medical-report.jpg' : 'heldout-wrist-image-017.jpg');
     form.append('input_type', provider === 'local' ? 'report' : 'xray');
+    if (provider === 'groq') form.append('wrist_confirmed', 'true');
     const response = await fetch(`http://127.0.0.1:${apiPort}/api/analyze`, { method: 'POST', body: form });
     const payload = await response.json();
 
@@ -53,12 +57,16 @@ for (const provider of ['local', 'groq']) test(`forwards ${provider === 'local' 
     assert.equal(payload.documentType, explanation.documentType);
     assert.equal(payload.summary, explanation.summary);
     assert.match(payload.id, /^[0-9a-f-]{36}$/i);
-    assert.match(forwardedBody, provider === 'local' ? /\r\nreport\r\n/ : /\r\nxray\r\n/);
+    const forwardedText = forwardedBody.toString('latin1');
+    assert.match(forwardedText, provider === 'local' ? /\r\nreport\r\n/ : /\r\nxray\r\n/);
+    assert.match(forwardedText, provider === 'local' ? /arbitrary-medical-report\.jpg/ : /heldout-wrist-image-017\.jpg/);
+    assert.ok(forwardedBody.includes(uploadedBytes));
 
     if (provider === 'groq') {
       const pdf = new FormData();
       pdf.append('report', new Blob(['%PDF-1.7\n'], { type: 'application/pdf' }), 'xray.pdf');
       pdf.append('input_type', 'xray');
+      pdf.append('wrist_confirmed', 'true');
       assert.equal((await fetch(`http://127.0.0.1:${apiPort}/api/analyze`, { method: 'POST', body: pdf })).status, 422);
     }
   } finally {
