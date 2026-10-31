@@ -894,6 +894,59 @@ function AuthenticatedApp() {
 
   useEffect(() => {
     getCurrentUser().then(result => setUser(result.user)).catch(() => {}).finally(() => setChecked(true));
+    const params = new URLSearchParams(window.location.search);
+    const demo = params.get('demo');
+    if (demo === 'report') {
+      setReport({
+        id: 'demo-report-1',
+        name: 'MRI_Right_Shoulder_Report.pdf',
+        date: '31 Oct 2026',
+        documentType: 'text_report',
+        title: 'MRI Right Shoulder Examination',
+        summary: 'A bone scan of your right shoulder shows a benign-looking area inside the upper arm bone (proximal humerus) near the joint. It measures 4.6 cm. The report notes no signs of aggressive disease, like bone breakdown or soft tissue invasion. All shoulder muscles and tendons look healthy with no tears.',
+        finding: 'Benign-appearing intraosseous lesion in proximal humerus',
+        location: 'Right shoulder, specifically the upper arm bone (proximal humerus)',
+        measurement: '4.6 cm',
+        context: 'Intraosseous lesions in the proximal humerus are often incidental, benign findings like enchondromas or bone cysts. No cortical breakthrough or soft tissue involvement is reassuring.',
+        followUpLevel: 'monitor',
+        followUpLabel: 'Review suggested',
+        followUpExplanation: 'Schedule a routine follow-up with your physician or orthopedist to review the imaging and determine if periodic monitoring is recommended.',
+        questions: [
+          'What type of bone lesion is most consistent with these MRI characteristics?',
+          'Do we need periodic follow-up scans to monitor for any changes in size?',
+          'Are there any activity restrictions or physical therapy recommendations?'
+        ],
+        limitations: 'This explanation is based on written text and does not replace evaluation by a qualified orthopedic specialist or radiologist.'
+      });
+      setPage('result');
+    } else if (demo === 'modal') {
+      setHowItWorksOpen(true);
+    } else if (demo === 'paired') {
+      setPairedResult({
+        report: {
+          id: 'demo-report-paired',
+          name: 'Wrist_Radiology_Report.pdf',
+          title: 'Pediatric Left Wrist Radiograph Report',
+          summary: 'The radiology report describes a distal radial buckle fracture with minimal angulation and intact soft tissue planes.',
+          finding: 'Distal radius buckle fracture',
+          location: 'Left wrist / distal radius',
+          measurement: 'Subtle cortical disruption',
+          limitations: 'Report interpretation only.',
+          questions: ['Does this buckle fracture require a splint or cast?', 'How long is immobilization recommended?', 'When should follow-up X-rays be taken?']
+        },
+        xray: {
+          id: 'demo-xray-paired',
+          name: 'Left_Wrist_AP_View.png',
+          documentType: 'xray',
+          title: 'Pediatric Wrist X-Ray Analysis',
+          fractureScore: 0.88,
+          findings: [{ x: 50, y: 120, width: 40, height: 35, confidence: 0.88 }],
+          limitations: 'Model detection pattern match. Not a clinical diagnosis.',
+          questions: ['Can you confirm if this model-detected region matches the buckle fracture on the film?']
+        }
+      });
+      setPage('paired-result');
+    }
   }, []);
 
   useEffect(() => {

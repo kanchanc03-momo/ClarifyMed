@@ -36,6 +36,30 @@ The system features multimodal, independent clinical intelligence pipelines:
 
 ---
 
+## Interface Previews
+
+### 1. Ingestion & Upload Dashboard
+*Support for medical reports (PDF/JPG/PNG), pediatric wrist X-rays, diabetic retinopathy fundus photographs, and paired multimodal uploads.*
+
+![ClarifyMed Upload Dashboard](docs/images/homepage.png)
+
+### 2. Plain-Language Explanation & Anatomical Mapping
+*Jargon-free medical interpretation, calibrated next-step gauge, reassuring observations, and anterior anatomical body orientation.*
+
+![Report Explanation View](docs/images/report_explanation.png)
+
+### 3. Paired Multimodal Analysis & Discrepancy Alerting
+*Side-by-side assessment of clinical documentation and imaging evidence with independent verification disclaimers.*
+
+![Paired Multimodal Analysis](docs/images/paired_multimodal_analysis.png)
+
+### 4. Patient Guidance & Privacy Architecture
+*Clear in-memory processing boundary and educational step-by-step guidance.*
+
+![How ClarifyMed Works](docs/images/how_it_works.png)
+
+---
+
 ## Architecture & Technology Stack
 
 ```
