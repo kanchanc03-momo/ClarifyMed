@@ -48,15 +48,42 @@ The system features multimodal, independent clinical intelligence pipelines:
 
 ![Report Explanation View](docs/images/report_explanation.png)
 
-### 3. Paired Multimodal Analysis & Discrepancy Alerting
+### 3. Pediatric Wrist X-Ray Fracture Detection (YOLOv8)
+*Computer vision object detection on pediatric wrist radiographs with bounding box visual localization and kid-friendly anatomical guidance.*
+
+![Pediatric Wrist X-Ray Fracture Detection](docs/images/pediatric_wrist_detection.png)
+
+### 4. Diabetic Retinopathy Screening & Grad-CAM Heatmap (EfficientNet-B0)
+*Automated 5-stage ICDR grading with the original color retinal fundus photograph and visual Grad-CAM attention heatmap displayed separately below.*
+
+![Diabetic Retinopathy Screening & Grad-CAM Heatmap](docs/images/diabetic_retinopathy_screening.png)
+
+### 5. Paired Multimodal Analysis & Discrepancy Alerting
 *Side-by-side assessment of clinical documentation and imaging evidence with independent verification disclaimers.*
 
 ![Paired Multimodal Analysis](docs/images/paired_multimodal_analysis.png)
 
-### 4. Patient Guidance & Privacy Architecture
+### 6. Patient Guidance & Privacy Architecture
 *Clear in-memory processing boundary and educational step-by-step guidance.*
 
 ![How ClarifyMed Works](docs/images/how_it_works.png)
+
+---
+
+## Sample Test Images (Ready to Test)
+
+The repository includes curated, de-identified clinical test images in the [`samples/`](samples/) folder so anyone can test the models immediately:
+
+* **Pediatric Wrist X-Rays (`samples/wrist_xrays/`):**
+  * `0195_0920972576_01_WRI-L2_M010.png` — Pediatric wrist radiograph
+  * `0296_0388544204_01_WRI-L2_F005.png` — Pediatric wrist radiograph
+  * `0378_0753639905_02_WRI-L1_F013.png` — Pediatric wrist fracture case
+  * `0391_0714864135_01_WRI-L1_M015.png` — Pediatric wrist radiograph
+* **Diabetic Retinopathy Fundus Scans (`samples/retinopathy/`):**
+  * `0005cfc8afb6.png` — Color retinal fundus photograph
+  * `003f0afdcd15.png` — Color retinal fundus photograph
+  * `00836aaacf06.png` — Color retinal fundus photograph
+  * `fef8e645d030.png` — Color retinal fundus photograph (tested for screening)
 
 ---
 
